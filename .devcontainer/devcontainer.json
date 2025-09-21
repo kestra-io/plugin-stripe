@@ -1,10 +1,10 @@
 {
-  "name": "plugin-template",
+  "name": "plugin-stripe",
   "build": {
     "context": ".",
     "dockerfile": "Dockerfile"
   },
-  "workspaceFolder": "/workspaces/plugin-template",
+  "workspaceFolder": "/workspaces/plugin-stripe",
   "forwardPorts": [8080],
   "customizations": {
     "vscode": {
