@@ -17,7 +17,7 @@ public interface StripeInterface {
         title = "Base URL for Stripe API",
         description = "Defaults to https://api.stripe.com. Usually no need to change unless testing against a mock server."
     )
-    
+    @NotNull
     Property<String> getUrl();
 
     /**
