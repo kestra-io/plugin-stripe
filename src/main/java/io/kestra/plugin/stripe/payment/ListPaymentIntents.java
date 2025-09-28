@@ -6,23 +6,26 @@ import com.stripe.param.PaymentIntentListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.tasks.PluginTask;
-import io.kestra.core.tasks.runners.RunContext;
+import io.kestra.core.models.tasks.RunnableTask;
+import io.kestra.core.runners.RunContext;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 
 @Plugin(
-    description = "Retrieve a list of PaymentIntents with optional filtering."
-)
-@Example(
-    title = "List recent Payment Intents",
-    code = {
-        "apiKey: sk_test_***",
-        "limit: 5"
+    examples = {
+        @Example(
+            title = "List recent Payment Intents",
+            code = {
+                "apiKey: sk_test_***",
+                "limit: 5"
+            }
+        )
     }
 )
-public class ListPaymentIntents extends PluginTask<ListPaymentIntents.Output> {
+@Getter
+public class ListPaymentIntents implements RunnableTask<ListPaymentIntents.Output> {
 
     @PluginProperty(dynamic = true)
     private String apiKey;
@@ -35,30 +38,31 @@ public class ListPaymentIntents extends PluginTask<ListPaymentIntents.Output> {
 
     @Override
     public Output run(RunContext runContext) throws Exception {
+        // Render dynamic variables
         String key = runContext.render(this.apiKey);
-
         Stripe.apiKey = key;
 
+        // Build parameters
         PaymentIntentListParams.Builder paramsBuilder = PaymentIntentListParams.builder();
-
         if (limit != null) {
             paramsBuilder.setLimit(limit);
         }
-
         if (customer != null) {
             paramsBuilder.setCustomer(runContext.render(customer));
         }
 
+        // Fetch PaymentIntents
         List<PaymentIntent> paymentIntents = PaymentIntent.list(paramsBuilder.build()).getData();
 
+        // Return output using Lombok builder
         return Output.builder()
             .paymentIntents(paymentIntents)
             .build();
     }
 
-    @lombok.Value
-    @lombok.Builder
+    @Builder
+    @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        List<PaymentIntent> paymentIntents;
+        private final List<PaymentIntent> paymentIntents;
     }
 }

@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.customer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.param.CustomerCreateParams;
@@ -11,12 +13,12 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.plugin.stripe.AbstractStripe;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -62,36 +64,53 @@ public class CreateCustomer extends AbstractStripe implements RunnableTask<Creat
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key and initialize SDK client
-        com.stripe.Stripe.apiKey = runContext.render(this.apiKey).asString().orElseThrow(
-            () -> new IllegalArgumentException("Stripe API key is required")
-        );
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey).as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
         // Resolve parameters
-        String renderedName = runContext.render(this.name).asString().orElse(null);
-        String renderedEmail = runContext.render(this.email).asString().orElse(null);
-        Map<String, Object> renderedMetadata = runContext.render(this.metadata).asMap(String.class, Object.class).orElse(new HashMap<>());
+        String renderedName = this.name != null
+            ? runContext.render(this.name).as(String.class).orElse(null)
+            : null;
+
+        String renderedEmail = this.email != null
+            ? runContext.render(this.email).as(String.class).orElse(null)
+            : null;
+
+        Map<String, Object> renderedMetadata = this.metadata != null
+            ? runContext.render(this.metadata).asMap(String.class, Object.class)
+            : new HashMap<>();
+
+        // Convert metadata values to String for Stripe
+        Map<String, String> metadataForStripe = renderedMetadata.entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue() == null ? "" : e.getValue().toString()
+            ));
 
         // Build customer create params
         CustomerCreateParams.Builder builder = CustomerCreateParams.builder();
         if (renderedName != null) builder.setName(renderedName);
         if (renderedEmail != null) builder.setEmail(renderedEmail);
-        if (!renderedMetadata.isEmpty()) builder.putAllMetadata(renderedMetadata);
+        if (!metadataForStripe.isEmpty()) builder.putAllMetadata(metadataForStripe);
 
-        CustomerCreateParams params = builder.build();
-
-        // Create customer using Stripe SDK
         Customer customer;
         try {
-            customer = Customer.create(params);
+            customer = Customer.create(builder.build());
         } catch (StripeException e) {
             throw new RuntimeException("Failed to create Stripe customer: " + e.getMessage(), e);
         }
 
-        // Return output
+        // Convert Stripe customer JSON to Map<String,Object> for output
+        String json = customer.getLastResponse().body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> customerData = mapper.readValue(json, new TypeReference<>() {});
+
         return Output.builder()
             .customerId(customer.getId())
-            .customerData(customer.toMap())
+            .customerData(customerData)
             .build();
     }
 
@@ -102,7 +121,7 @@ public class CreateCustomer extends AbstractStripe implements RunnableTask<Creat
         private final String customerId;
 
         @Schema(title = "The full customer object as a map.")
-        @PluginProperty(additionalProperties = Map.class)
+        @PluginProperty
         private final Map<String, Object> customerData;
     }
 }

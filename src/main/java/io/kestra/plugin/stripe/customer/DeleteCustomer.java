@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.customer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import io.kestra.core.models.annotations.Example;
@@ -11,6 +13,7 @@ import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.plugin.stripe.AbstractStripe;
 import jakarta.validation.constraints.NotNull;
+import java.util.Map;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -49,27 +52,34 @@ public class DeleteCustomer extends AbstractStripe implements RunnableTask<Delet
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Initialize Stripe SDK
-        com.stripe.Stripe.apiKey = runContext.render(this.apiKey)
-            .asString()
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
+        // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
-            .asString()
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
         Customer customer;
         try {
             customer = Customer.retrieve(renderedCustomerId);
-            customer = customer.delete(); // Deletes (soft-delete) the customer
+            customer = customer.delete(); // Soft-delete the customer
         } catch (StripeException e) {
             throw new RuntimeException("Failed to delete Stripe customer: " + e.getMessage(), e);
         }
 
+        // Convert Stripe customer JSON to Map<String,Object>
+        String json = customer.getLastResponse().body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> customerData = mapper.readValue(json, new TypeReference<>() {});
+
         return Output.builder()
             .customerId(customer.getId())
             .deleted(customer.getDeleted() != null && customer.getDeleted())
-            .customerData(customer.toMap())
+            .customerData(customerData)
             .build();
     }
 
@@ -83,7 +93,7 @@ public class DeleteCustomer extends AbstractStripe implements RunnableTask<Delet
         private final Boolean deleted;
 
         @Schema(title = "The full customer object as a map.")
-        @PluginProperty(additionalProperties = java.util.Map.class)
-        private final java.util.Map<String, Object> customerData;
+        @PluginProperty
+        private final Map<String, Object> customerData;
     }
 }

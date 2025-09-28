@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.customer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.param.CustomerUpdateParams;
@@ -17,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -66,28 +69,40 @@ public class UpdateCustomer extends AbstractStripe implements RunnableTask<Updat
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Initialize Stripe SDK
-        com.stripe.Stripe.apiKey = runContext.render(this.apiKey)
-            .asString()
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
+        // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
-            .asString()
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
-        String renderedName = runContext.render(this.name).asString().orElse(null);
-        String renderedEmail = runContext.render(this.email).asString().orElse(null);
-        Map<String, Object> renderedMetadata = runContext.render(this.metadata).asMap(String.class, Object.class).orElse(new HashMap<>());
+        // Resolve optional fields
+        String renderedName = this.name != null ? runContext.render(this.name).as(String.class).orElse(null) : null;
+        String renderedEmail = this.email != null ? runContext.render(this.email).as(String.class).orElse(null) : null;
+        Map<String, Object> renderedMetadata = this.metadata != null
+            ? runContext.render(this.metadata).asMap(String.class, Object.class)
+            : new HashMap<>();
+
+        // Convert metadata to Map<String,String> for Stripe
+        Map<String, String> metadataForStripe = renderedMetadata.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue() == null ? "" : e.getValue().toString()
+            ));
 
         // Build update params
         CustomerUpdateParams.Builder builder = CustomerUpdateParams.builder();
         if (renderedName != null) builder.setName(renderedName);
         if (renderedEmail != null) builder.setEmail(renderedEmail);
-        if (!renderedMetadata.isEmpty()) builder.putAllMetadata(renderedMetadata);
+        if (!metadataForStripe.isEmpty()) builder.putAllMetadata(metadataForStripe);
 
         CustomerUpdateParams params = builder.build();
 
-        // Update customer using Stripe SDK
+        // Update customer
         Customer customer;
         try {
             customer = Customer.retrieve(renderedCustomerId);
@@ -96,9 +111,14 @@ public class UpdateCustomer extends AbstractStripe implements RunnableTask<Updat
             throw new RuntimeException("Failed to update Stripe customer: " + e.getMessage(), e);
         }
 
+        // Convert Stripe customer JSON to Map<String,Object>
+        String json = customer.getLastResponse().body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> customerData = mapper.readValue(json, new TypeReference<>() {});
+
         return Output.builder()
             .customerId(customer.getId())
-            .customerData(customer.toMap())
+            .customerData(customerData)
             .build();
     }
 
@@ -109,7 +129,7 @@ public class UpdateCustomer extends AbstractStripe implements RunnableTask<Updat
         private final String customerId;
 
         @Schema(title = "The full customer object as a map.")
-        @PluginProperty(additionalProperties = Map.class)
+        @PluginProperty
         private final Map<String, Object> customerData;
     }
 }

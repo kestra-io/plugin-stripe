@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.customer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import io.kestra.core.models.annotations.Example;
@@ -15,6 +17,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
+import java.util.HashMap;
 
 @SuperBuilder
 @ToString
@@ -51,13 +54,15 @@ public class GetCustomer extends AbstractStripe implements RunnableTask<GetCusto
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Initialize Stripe SDK
-        com.stripe.Stripe.apiKey = runContext.render(this.apiKey)
-            .asString()
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
+        // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
-            .asString()
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
         Customer customer;
@@ -67,9 +72,14 @@ public class GetCustomer extends AbstractStripe implements RunnableTask<GetCusto
             throw new RuntimeException("Failed to retrieve Stripe customer: " + e.getMessage(), e);
         }
 
+        // Convert Stripe customer JSON to Map<String,Object>
+        String json = customer.getLastResponse().body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> customerData = mapper.readValue(json, new TypeReference<>() {});
+
         return Output.builder()
             .customerId(customer.getId())
-            .customerData(customer.toMap())
+            .customerData(customerData)
             .build();
     }
 
@@ -80,7 +90,7 @@ public class GetCustomer extends AbstractStripe implements RunnableTask<GetCusto
         private final String customerId;
 
         @Schema(title = "The full customer object as a map.")
-        @PluginProperty(additionalProperties = Map.class)
+        @PluginProperty
         private final Map<String, Object> customerData;
     }
 }

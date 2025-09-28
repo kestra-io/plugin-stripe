@@ -1,5 +1,6 @@
 package io.kestra.plugin.stripe.payment;
 
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import io.kestra.core.models.annotations.Example;
@@ -46,28 +47,30 @@ import java.util.Map;
 )
 public class ConfirmPaymentIntent extends AbstractStripe implements RunnableTask<ConfirmPaymentIntent.Output> {
 
-    @Schema(
-        title = "The ID of the PaymentIntent to confirm."
-    )
+    @Schema(title = "The ID of the PaymentIntent to confirm.")
     @NotNull
     private Property<String> paymentIntentId;
 
-    @Schema(
-        title = "Optional parameters to pass when confirming the PaymentIntent."
-    )
+    @Schema(title = "Optional parameters to pass when confirming the PaymentIntent.")
     private Property<Map<String, Object>> params;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = renderApiKey(runContext);
-        String renderedId = runContext.render(this.paymentIntentId).as(String.class)
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        Stripe.apiKey = apiKey;
+
+        // Resolve PaymentIntent ID
+        String renderedId = runContext.render(this.paymentIntentId)
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentIntent ID is required"));
 
-        Map<String, Object> renderedParams = runContext.render(this.params)
-            .as(Map.class).orElse(new HashMap<>());
-
-        // Set API key
-        com.stripe.Stripe.apiKey = apiKey;
+        // Resolve params (optional, defaults to empty map)
+        Map<String, Object> renderedParams = this.params != null
+            ? runContext.render(this.params).asMap(String.class, Object.class)
+            : new HashMap<>();
 
         try {
             PaymentIntent paymentIntent = PaymentIntent.retrieve(renderedId);

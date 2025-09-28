@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.payment;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import io.kestra.core.models.annotations.Example;
@@ -14,7 +16,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SuperBuilder
@@ -48,17 +49,20 @@ import java.util.Map;
 )
 public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<CreatePaymentIntent.Output> {
     @NotNull
+    @PluginProperty
     @Schema(
         title = "Amount intended to be collected by this PaymentIntent (in the smallest currency unit)."
     )
     private Property<Long> amount;
 
     @NotNull
+    @PluginProperty
     @Schema(
         title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)."
     )
     private Property<String> currency;
 
+    @PluginProperty
     @Schema(
         title = "ID of an existing customer to associate with this PaymentIntent."
     )
@@ -66,8 +70,12 @@ public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        this.initStripe(runContext);
+        // Resolve API key and set Stripe API key
+        String apiKey = runContext.render(this.apiKey).as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
+        // Resolve input fields
         Long renderedAmount = runContext.render(this.amount).as(Long.class)
             .orElseThrow(() -> new IllegalArgumentException("Amount is required"));
         String renderedCurrency = runContext.render(this.currency).as(String.class)
@@ -84,7 +92,12 @@ public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<
 
         PaymentIntent intent = PaymentIntent.create(paramsBuilder.build());
 
-        Map<String, Object> paymentIntentMap = new HashMap<>(intent);
+        // Convert Stripe object JSON into Map
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> paymentIntentMap = mapper.readValue(
+            intent.toJson(),
+            new TypeReference<Map<String, Object>>() {}
+        );
 
         return Output.builder()
             .paymentIntentId(intent.getId())
@@ -93,6 +106,7 @@ public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<
             .rawResponse(paymentIntentMap)
             .build();
     }
+
 
     @Builder
     @Getter

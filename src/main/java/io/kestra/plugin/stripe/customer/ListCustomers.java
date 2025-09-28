@@ -1,5 +1,7 @@
 package io.kestra.plugin.stripe.customer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.CustomerCollection;
@@ -13,7 +15,6 @@ import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.plugin.stripe.AbstractStripe;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -61,12 +62,15 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Initialize Stripe SDK
-        com.stripe.Stripe.apiKey = runContext.render(this.apiKey)
-            .asString()
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
         Integer renderedLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
-        String renderedEmail = runContext.render(this.email).asString().orElse(null);
+        String renderedEmail = this.email != null
+            ? runContext.render(this.email).as(String.class).orElse(null)
+            : null;
 
         CustomerListParams.Builder paramsBuilder = CustomerListParams.builder()
             .setLimit(Long.valueOf(renderedLimit));
@@ -82,8 +86,16 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
             throw new RuntimeException("Failed to list Stripe customers: " + e.getMessage(), e);
         }
 
+        ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> customerList = customers.getData().stream()
-            .map(Customer::toMap)
+            .map(customer -> {
+                try {
+                    String json = customer.getLastResponse().body();
+                    return mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+                } catch (Exception ex) {
+                    throw new RuntimeException("Failed to parse customer JSON: " + ex.getMessage(), ex);
+                }
+            })
             .collect(Collectors.toList());
 
         return Output.builder()
@@ -96,7 +108,7 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "List of customer objects")
-        @PluginProperty(additionalProperties = Map.class)
+        @PluginProperty
         private final List<Map<String, Object>> customers;
 
         @Schema(title = "Number of customers returned")

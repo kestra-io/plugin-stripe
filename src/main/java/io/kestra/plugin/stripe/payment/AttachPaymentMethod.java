@@ -1,11 +1,14 @@
 package io.kestra.plugin.stripe.payment;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.stripe.AbstractStripe;
@@ -14,14 +17,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Map;
+
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Attach a PaymentMethod to a Customer",
-    description = "This task links an existing PaymentMethod to a Stripe Customer."
+    title = "Attach a PaymentMethod to a Customer.",
+    description = "This task attaches an existing PaymentMethod to a Stripe Customer and returns the attached PaymentMethod object."
 )
 @Plugin(
     examples = {
@@ -44,52 +49,66 @@ import lombok.experimental.SuperBuilder;
 )
 public class AttachPaymentMethod extends AbstractStripe implements RunnableTask<AttachPaymentMethod.Output> {
 
-    @Schema(title = "ID of the PaymentMethod to attach")
+    @Schema(title = "The ID of the PaymentMethod to attach.")
     @NotNull
     private Property<String> paymentMethodId;
 
-    @Schema(title = "ID of the Customer to attach the PaymentMethod to")
+    @Schema(title = "The ID of the Customer to attach the PaymentMethod to.")
     @NotNull
     private Property<String> customerId;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = renderApiKey(runContext);
+        // Resolve API key
+        String apiKey = runContext.render(this.apiKey)
+            .as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
         Stripe.apiKey = apiKey;
 
-        String pmId = runContext.render(paymentMethodId).as(String.class).orElseThrow();
-        String cusId = runContext.render(customerId).as(String.class).orElseThrow();
+        // Resolve parameters
+        String pmId = runContext.render(this.paymentMethodId)
+            .as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("PaymentMethod ID is required"));
 
+        String cusId = runContext.render(this.customerId)
+            .as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Customer ID is required"));
+
+        PaymentMethod attached;
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(pmId);
-            PaymentMethod attached = paymentMethod.attach(
-                Map.of("customer", cusId)
-            );
-
-            return Output.builder()
-                .id(attached.getId())
-                .customer(attached.getCustomer())
-                .type(attached.getType())
-                .raw(attached.toJson())
-                .build();
+            attached = paymentMethod.attach(Map.of("customer", cusId));
         } catch (StripeException e) {
-            throw new RuntimeException("Failed to attach PaymentMethod to customer", e);
+            throw new RuntimeException("Failed to attach PaymentMethod to customer: " + e.getMessage(), e);
         }
+
+        // Convert Stripe PaymentMethod JSON to Map<String,Object>
+        String json = attached.getLastResponse().body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> paymentMethodData = mapper.readValue(json, new TypeReference<>() {});
+
+        return Output.builder()
+            .paymentMethodId(attached.getId())
+            .customerId(attached.getCustomer())
+            .type(attached.getType())
+            .paymentMethodData(paymentMethodData)
+            .build();
     }
 
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "ID of the attached PaymentMethod")
-        private final String id;
+        @Schema(title = "The ID of the attached PaymentMethod.")
+        private final String paymentMethodId;
 
-        @Schema(title = "ID of the customer the PaymentMethod is attached to")
-        private final String customer;
+        @Schema(title = "The ID of the Customer the PaymentMethod is attached to.")
+        private final String customerId;
 
-        @Schema(title = "Type of the PaymentMethod")
+        @Schema(title = "The type of the PaymentMethod (e.g., card, bank_account).")
         private final String type;
 
-        @Schema(title = "Raw JSON returned by Stripe")
-        private final String raw;
+        @Schema(title = "The full PaymentMethod object as a map.")
+        @PluginProperty
+        private final Map<String, Object> paymentMethodData;
     }
 }
