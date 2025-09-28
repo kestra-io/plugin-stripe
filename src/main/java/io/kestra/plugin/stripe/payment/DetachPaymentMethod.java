@@ -1,11 +1,12 @@
 package io.kestra.plugin.stripe.payment;
 
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.PaymentMethod;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.stripe.AbstractStripe;
@@ -14,14 +15,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Map;
+
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Detach a PaymentMethod from a Customer",
-    description = "This task removes an existing PaymentMethod from a Stripe Customer."
+    title = "Detach a PaymentMethod from a Customer.",
+    description = "This task detaches an existing PaymentMethod from a Stripe Customer."
 )
 @Plugin(
     examples = {
@@ -43,45 +46,54 @@ import lombok.experimental.SuperBuilder;
 )
 public class DetachPaymentMethod extends AbstractStripe implements RunnableTask<DetachPaymentMethod.Output> {
 
-    @Schema(title = "ID of the PaymentMethod to detach")
     @NotNull
+    @PluginProperty
+    @Schema(title = "The ID of the PaymentMethod to detach.")
     private Property<String> paymentMethodId;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = renderApiKey(runContext);
-        Stripe.apiKey = apiKey;
+        // Resolve and set Stripe API key
+        String apiKey = runContext.render(this.apiKey).as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        com.stripe.Stripe.apiKey = apiKey;
 
-        String pmId = runContext.render(paymentMethodId).as(String.class).orElseThrow();
+        // Resolve PaymentMethod ID
+        String pmId = runContext.render(this.paymentMethodId).as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("PaymentMethod ID is required"));
 
-        try {
-            PaymentMethod paymentMethod = PaymentMethod.retrieve(pmId);
-            PaymentMethod detached = paymentMethod.detach();
+        // Retrieve and detach PaymentMethod
+        PaymentMethod paymentMethod = PaymentMethod.retrieve(pmId);
+        PaymentMethod detached = paymentMethod.detach();
 
-            return Output.builder()
-                .id(detached.getId())
-                .customer(detached.getCustomer())
-                .type(detached.getType())
-                .raw(detached.toJson())
-                .build();
-        } catch (StripeException e) {
-            throw new RuntimeException("Failed to detach PaymentMethod from customer", e);
-        }
+        // Convert to Map
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> detachedMap = mapper.readValue(
+            detached.toJson(),
+            new TypeReference<Map<String, Object>>() {}
+        );
+
+        return Output.builder()
+            .id(detached.getId())
+            .customer(detached.getCustomer())
+            .type(detached.getType())
+            .rawResponse(detachedMap)
+            .build();
     }
 
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "ID of the detached PaymentMethod")
+        @Schema(title = "The ID of the detached PaymentMethod.")
         private final String id;
 
-        @Schema(title = "ID of the customer (null after detachment)")
+        @Schema(title = "The ID of the customer (will be null after detachment).")
         private final String customer;
 
-        @Schema(title = "Type of the PaymentMethod")
+        @Schema(title = "The type of the PaymentMethod.")
         private final String type;
 
-        @Schema(title = "Raw JSON returned by Stripe")
-        private final String raw;
+        @Schema(title = "The raw detached PaymentMethod object.")
+        private final Map<String, Object> rawResponse;
     }
 }

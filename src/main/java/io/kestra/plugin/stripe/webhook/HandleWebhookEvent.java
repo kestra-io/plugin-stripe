@@ -2,9 +2,12 @@ package io.kestra.plugin.stripe.webhook;
 
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
+import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -14,7 +17,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
 import java.util.Map;
 
 @SuperBuilder
@@ -60,6 +62,8 @@ public class HandleWebhookEvent extends AbstractStripe implements RunnableTask<H
     @NotNull
     private Property<String> endpointSecret;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         String rawPayload = runContext.render(payload).as(String.class).orElseThrow();
@@ -68,11 +72,15 @@ public class HandleWebhookEvent extends AbstractStripe implements RunnableTask<H
 
         try {
             Event event = Webhook.constructEvent(rawPayload, sigHeader, secret);
+            StripeObject stripeObject = event.getData().getObject();
+
+            // Convert StripeObject to Map
+            Map<String, Object> dataMap = MAPPER.convertValue(stripeObject, Map.class);
 
             return Output.builder()
                 .id(event.getId())
                 .type(event.getType())
-                .data(event.getData().getObject())
+                .data(dataMap)
                 .raw(rawPayload)
                 .build();
         } catch (SignatureVerificationException e) {

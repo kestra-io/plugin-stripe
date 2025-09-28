@@ -8,6 +8,7 @@ import com.stripe.param.PaymentMethodListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.stripe.AbstractStripe;
@@ -50,20 +51,28 @@ import java.util.stream.Collectors;
 public class ListPaymentMethods extends AbstractStripe implements RunnableTask<ListPaymentMethods.Output> {
 
     @Schema(title = "ID of the customer")
+    @PluginProperty
     @NotNull
     private Property<String> customerId;
 
     @Schema(title = "Type of PaymentMethods to list (card, sepa_debit, etc.)")
+    @PluginProperty
     @NotNull
     private Property<String> type;
 
+    @PluginProperty
+    private Property<String> apiKey;
+
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = renderApiKey(runContext);
-        Stripe.apiKey = apiKey;
+        // Render API key
+        String key = runContext.render(this.apiKey).as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
+        Stripe.apiKey = key;
 
-        String cusId = runContext.render(customerId).as(String.class).orElseThrow();
-        String pmType = runContext.render(type).as(String.class).orElseThrow();
+        // Resolve properties
+        String cusId = runContext.render(this.customerId).as(String.class).orElseThrow();
+        String pmType = runContext.render(this.type).as(String.class).orElseThrow();
 
         try {
             PaymentMethodListParams params = PaymentMethodListParams.builder()
@@ -83,7 +92,7 @@ public class ListPaymentMethods extends AbstractStripe implements RunnableTask<L
                 .raw(collection.toJson())
                 .build();
         } catch (StripeException e) {
-            throw new RuntimeException("Failed to list PaymentMethods for customer", e);
+            throw new RuntimeException("Failed to list PaymentMethods for customer: " + cusId, e);
         }
     }
 

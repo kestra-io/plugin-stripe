@@ -5,6 +5,7 @@ import com.stripe.model.Refund;
 import com.stripe.param.RefundCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
@@ -75,7 +76,7 @@ public class RefundPayment extends AbstractStripe implements RunnableTask<Refund
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = renderApiKey(runContext);
+        String apiKey = runContext.render(this.apiKey).as(String.class).orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
 
         String renderedChargeId = runContext.render(this.chargeId).as(String.class).orElse(null);
         String renderedPaymentIntentId = runContext.render(this.paymentIntentId).as(String.class).orElse(null);
