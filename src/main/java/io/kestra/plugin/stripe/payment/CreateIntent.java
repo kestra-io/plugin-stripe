@@ -38,7 +38,7 @@ import java.util.Map;
 
                 tasks:
                   - id: create_payment_intent
-                    type: io.kestra.plugin.stripe.payment.CreatePaymentIntent
+                    type: io.kestra.plugin.stripe.payment.CreateIntent
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     amount: 1000
                     currency: "usd"
@@ -47,7 +47,7 @@ import java.util.Map;
         )
     }
 )
-public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<CreatePaymentIntent.Output> {
+public class CreateIntent extends AbstractStripe implements RunnableTask<CreateIntent.Output> {
     @NotNull
     @PluginProperty
     @Schema(

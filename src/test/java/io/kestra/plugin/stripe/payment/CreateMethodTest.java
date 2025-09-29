@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class CreatePaymentMethodTest extends AbstractStripeTest {
+class CreateMethodTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -26,7 +26,7 @@ class CreatePaymentMethodTest extends AbstractStripeTest {
     void createCardPaymentMethod() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        CreatePaymentMethod task = CreatePaymentMethod.builder()
+        CreateMethod task = CreateMethod.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .paymentMethodType(Property.ofValue("card"))
             .cardNumber(Property.ofValue("4242424242424242"))
@@ -35,7 +35,7 @@ class CreatePaymentMethodTest extends AbstractStripeTest {
             .cvc(Property.ofValue("123"))
             .build();
 
-        CreatePaymentMethod.Output output = task.run(runContext);
+        CreateMethod.Output output = task.run(runContext);
 
         assertThat(output, is(notNullValue()));
         assertThat(output.getPaymentMethodId(), is(notNullValue()));

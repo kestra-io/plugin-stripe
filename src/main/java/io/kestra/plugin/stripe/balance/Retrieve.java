@@ -36,13 +36,13 @@ import java.util.stream.Collectors;
 
                 tasks:
                   - id: get_balance
-                    type: io.kestra.plugin.stripe.balance.RetrieveBalance
+                    type: io.kestra.plugin.stripe.balance.Retrieve
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                 """
         )
     }
 )
-public class RetrieveBalance extends AbstractStripe implements RunnableTask<RetrieveBalance.Output> {
+public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Output> {
 
     @Override
     public Output run(RunContext runContext) throws Exception {

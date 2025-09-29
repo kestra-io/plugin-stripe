@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
-class ListPaymentMethodsTest extends AbstractStripeTest {
+class ListMethodsTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -23,14 +23,14 @@ class ListPaymentMethodsTest extends AbstractStripeTest {
         Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
 
         // You need a test customer with attached payment methods in Stripe dashboard
-        ListPaymentMethods task = ListPaymentMethods.builder()
+        ListMethods task = ListMethods.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue("cus_test_id"))
             .type("card")
             .build();
 
         var runContext = runContextFactory.of(Map.of());
-        ListPaymentMethods.Output output = task.run(runContext);
+        ListMethods.Output output = task.run(runContext);
 
         assertEquals("cus_test_id", output.getCustomerId());
         assertNotNull(output.getPaymentMethodIds());

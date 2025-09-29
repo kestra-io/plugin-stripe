@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class CreatePaymentIntentTest extends AbstractStripeTest {
+class CreateIntentTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -27,13 +27,13 @@ class CreatePaymentIntentTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // Build the task using Property.ofValue for all fields
-        CreatePaymentIntent task = CreatePaymentIntent.builder()
+        CreateIntent task = CreateIntent.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .amount(Property.ofValue(1000L)) // $10.00 if currency is USD
             .currency(Property.ofValue("usd"))
             .build();
 
-        CreatePaymentIntent.Output output = task.run(runContext);
+        CreateIntent.Output output = task.run(runContext);
 
         assertThat(output, is(notNullValue()));
         assertThat(output.getPaymentIntentId(), is(notNullValue()));

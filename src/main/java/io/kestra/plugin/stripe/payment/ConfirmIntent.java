@@ -34,14 +34,14 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: confirm_payment
-                    type: io.kestra.plugin.stripe.payment.ConfirmPaymentIntent
+                    type: io.kestra.plugin.stripe.payment.ConfirmIntent
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     paymentIntentId: "pi_123456789"
                 """
         )
     }
 )
-public class ConfirmPaymentIntent extends AbstractStripe implements RunnableTask<ConfirmPaymentIntent.Output> {
+public class ConfirmIntent extends AbstractStripe implements RunnableTask<ConfirmIntent.Output> {
 
     @Schema(title = "The ID of the PaymentIntent to confirm.")
     @NotNull

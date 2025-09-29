@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class UpdateCustomerTest extends AbstractStripeTest {
+class UpdateTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -29,19 +29,19 @@ class UpdateCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to update
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Temp User"))
             .email(Property.ofValue("tempuser@example.com"))
             .metadata(Property.ofValue(Map.of("plan", "trial")))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
         assertThat(customerId, is(notNullValue()));
 
         // Now update the customer
-        UpdateCustomer updateTask = UpdateCustomer.builder()
+        Update updateTask = Update.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue(customerId))
             .name(Property.ofValue("Updated User"))
@@ -51,7 +51,7 @@ class UpdateCustomerTest extends AbstractStripeTest {
             )))
             .build();
 
-        UpdateCustomer.Output updated = updateTask.run(runContext);
+        Update.Output updated = updateTask.run(runContext);
 
         // Assertions
         assertThat(updated.getCustomerId(), is(customerId));
@@ -69,22 +69,22 @@ class UpdateCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // Create a temporary customer
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .email(Property.ofValue("minimalupdate@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
         assertThat(customerId, is(notNullValue()));
 
         // Update only the email to same value (minimal update)
-        UpdateCustomer updateTask = UpdateCustomer.builder()
+        Update updateTask = Update.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue(customerId))
             .build();
 
-        UpdateCustomer.Output updated = updateTask.run(runContext);
+        Update.Output updated = updateTask.run(runContext);
 
         // Assertions
         assertThat(updated.getCustomerId(), is(customerId));

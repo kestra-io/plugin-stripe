@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
                 tasks:
                   - id: list_pms
-                    type: io.kestra.plugin.stripe.payment.ListPaymentMethods
+                    type: io.kestra.plugin.stripe.payment.ListMethods
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     customerId: cus_123
                     type: card
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
         )
     }
 )
-public class ListPaymentMethods extends AbstractStripe implements RunnableTask<ListPaymentMethods.Output> {
+public class ListMethods extends AbstractStripe implements RunnableTask<ListMethods.Output> {
 
     @Schema(title = "ID of the customer")
     @PluginProperty

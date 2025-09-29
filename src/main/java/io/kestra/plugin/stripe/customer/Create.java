@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
                 tasks:
                   - id: create_customer
-                    type: io.kestra.plugin.stripe.customer.CreateCustomer
+                    type: io.kestra.plugin.stripe.customer.Create
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     name: "John Doe"
                     email: "john@example.com"
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
         )
     }
 )
-public class CreateCustomer extends AbstractStripe implements RunnableTask<CreateCustomer.Output> {
+public class Create extends AbstractStripe implements RunnableTask<Create.Output> {
 
     @Schema(title = "The customer's name.")
     private Property<String> name;

@@ -39,7 +39,7 @@ import java.util.Map;
 
                 tasks:
                   - id: attach_pm
-                    type: io.kestra.plugin.stripe.payment.AttachPaymentMethod
+                    type: io.kestra.plugin.stripe.payment.AttachMethod
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     paymentMethodId: pm_123
                     customerId: cus_456
@@ -47,7 +47,7 @@ import java.util.Map;
         )
     }
 )
-public class AttachPaymentMethod extends AbstractStripe implements RunnableTask<AttachPaymentMethod.Output> {
+public class AttachMethod extends AbstractStripe implements RunnableTask<AttachMethod.Output> {
 
     @Schema(title = "The ID of the PaymentMethod to attach.")
     @NotNull

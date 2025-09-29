@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class GetCustomerTest extends AbstractStripeTest {
+class GetTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -27,23 +27,23 @@ class GetCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to retrieve
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Temp Get User"))
             .email(Property.ofValue("tempget@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
         assertThat(customerId, is(notNullValue()));
 
         // Retrieve the customer
-        GetCustomer getTask = GetCustomer.builder()
+        Get getTask = Get.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue(customerId))
             .build();
 
-        GetCustomer.Output output = getTask.run(runContext);
+        Get.Output output = getTask.run(runContext);
 
         // Assertions
         assertThat(output.getCustomerId(), is(customerId));
@@ -57,7 +57,7 @@ class GetCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // Attempt to retrieve a non-existent customer
-        GetCustomer getTask = GetCustomer.builder()
+        Get getTask = Get.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue("cus_invalid123"))
             .build();

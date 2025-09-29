@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class ListCustomersTest extends AbstractStripeTest {
+class ListTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -29,22 +29,22 @@ class ListCustomersTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // Create a temporary customer to ensure at least one exists
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Temp List User"))
             .email(Property.ofValue("templist@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         assertThat(created.getCustomerId(), is(notNullValue()));
 
         // List customers
-        ListCustomers listTask = ListCustomers.builder()
+        List listTask = List.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .limit(Property.ofValue(5))
             .build();
 
-        ListCustomers.Output output = listTask.run(runContext);
+        List.Output output = listTask.run(runContext);
 
         assertThat(output.getCustomers(), is(notNullValue()));
         assertThat(output.getCustomers().isEmpty(), is(false));
@@ -62,22 +62,22 @@ class ListCustomersTest extends AbstractStripeTest {
 
         // Create a customer with a unique email
         String uniqueEmail = "filtertest+" + System.currentTimeMillis() + "@example.com";
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Filter Test User"))
             .email(Property.ofValue(uniqueEmail))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         assertThat(created.getCustomerId(), is(notNullValue()));
 
         // List customers filtered by email
-        ListCustomers listTask = ListCustomers.builder()
+        List listTask = List.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .email(Property.ofValue(uniqueEmail))
             .build();
 
-        ListCustomers.Output output = listTask.run(runContext);
+        List.Output output = listTask.run(runContext);
 
         assertThat(output.getCustomers(), is(notNullValue()));
         assertThat(output.getCustomers().size(), is(1));

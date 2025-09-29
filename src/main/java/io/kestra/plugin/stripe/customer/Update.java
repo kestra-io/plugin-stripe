@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
                 tasks:
                   - id: update_customer
-                    type: io.kestra.plugin.stripe.customer.UpdateCustomer
+                    type: io.kestra.plugin.stripe.customer.Update
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     customerId: "cus_123456789"
                     name: "John Updated"
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
         )
     }
 )
-public class UpdateCustomer extends AbstractStripe implements RunnableTask<UpdateCustomer.Output> {
+public class Update extends AbstractStripe implements RunnableTask<Update.Output> {
 
     @Schema(title = "The ID of the customer to update.", required = true)
     @NotNull

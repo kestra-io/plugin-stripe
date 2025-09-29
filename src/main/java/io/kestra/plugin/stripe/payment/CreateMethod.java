@@ -38,7 +38,7 @@ import java.util.Map;
 
                 tasks:
                   - id: create_payment_method
-                    type: io.kestra.plugin.stripe.payment.CreatePaymentMethod
+                    type: io.kestra.plugin.stripe.payment.CreateMethod
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     type: "card"
                     cardNumber: "4242424242424242"
@@ -49,7 +49,7 @@ import java.util.Map;
         )
     }
 )
-public class CreatePaymentMethod extends AbstractStripe implements RunnableTask<CreatePaymentMethod.Output> {
+public class CreateMethod extends AbstractStripe implements RunnableTask<CreateMethod.Output> {
     @NotNull
     @PluginProperty
     @Schema(title = "The type of the PaymentMethod. Example: `card`")

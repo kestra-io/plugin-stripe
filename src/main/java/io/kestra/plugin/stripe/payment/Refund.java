@@ -1,7 +1,6 @@
 package io.kestra.plugin.stripe.payment;
 
 import com.stripe.exception.StripeException;
-import com.stripe.model.Refund;
 import com.stripe.param.RefundCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -33,7 +32,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: refund_payment
-                    type: io.kestra.plugin.stripe.payment.RefundPayment
+                    type: io.kestra.plugin.stripe.payment.Refund
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     chargeId: "ch_123456789"
                 """
@@ -55,7 +54,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class RefundPayment extends AbstractStripe implements RunnableTask<RefundPayment.Output> {
+public class Refund extends AbstractStripe implements RunnableTask<Refund.Output> {
     @Schema(
         title = "The ID of the Charge to refund. Either chargeId or paymentIntentId must be provided."
     )
@@ -95,7 +94,7 @@ public class RefundPayment extends AbstractStripe implements RunnableTask<Refund
 
         try {
             // Use the client from AbstractStripe
-            Refund refund = client(runContext).refunds().create(params.build());
+            com.stripe.model.Refund refund = client(runContext).refunds().create(params.build());
 
             return Output.builder()
                 .refundId(refund.getId())

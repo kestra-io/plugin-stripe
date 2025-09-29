@@ -43,7 +43,7 @@ import java.util.Map;
 
                 tasks:
                   - id: list_payment_intents
-                    type: io.kestra.plugin.stripe.payment.ListPaymentIntents
+                    type: io.kestra.plugin.stripe.payment.ListIntents
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     limit: 5
                     customer: cus_123
@@ -51,7 +51,7 @@ import java.util.Map;
         )
     }
 )
-public class ListPaymentIntents extends AbstractStripe implements RunnableTask<ListPaymentIntents.Output> {
+public class ListIntents extends AbstractStripe implements RunnableTask<ListIntents.Output> {
 
     @Schema(title = "Maximum number of PaymentIntents to retrieve")
     @PluginProperty

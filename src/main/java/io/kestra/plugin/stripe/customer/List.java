@@ -18,7 +18,6 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -42,14 +41,14 @@ import java.util.stream.Collectors;
 
                 tasks:
                   - id: list_customers
-                    type: io.kestra.plugin.stripe.customer.ListCustomers
+                    type: io.kestra.plugin.stripe.customer.List
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     limit: 10
                 """
         )
     }
 )
-public class ListCustomers extends AbstractStripe implements RunnableTask<ListCustomers.Output> {
+public class List extends AbstractStripe implements RunnableTask<List.Output> {
 
     @Schema(title = "Maximum number of customers to return", description = "Defaults to 10")
     @Min(1)
@@ -82,7 +81,7 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> customerList = customers.getData().stream()
+        java.util.List<Map<String, Object>> customerList = customers.getData().stream()
             .map(customer -> {
                 try {
                     String json = customer.getLastResponse().body();
@@ -104,7 +103,7 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "List of customer objects")
         @PluginProperty
-        private final List<Map<String, Object>> customers;
+        private final java.util.List<Map<String, Object>> customers;
 
         @Schema(title = "Number of customers returned")
         private final Integer totalCount;

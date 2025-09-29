@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RetrieveBalanceTest extends AbstractStripeTest {
+class RetrieveTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -19,12 +19,12 @@ class RetrieveBalanceTest extends AbstractStripeTest {
     void run() throws Exception {
         Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
 
-        RetrieveBalance task = RetrieveBalance.builder()
+        Retrieve task = Retrieve.builder()
             .apiKey(Property.of(Stripe.apiKey))
             .build();
 
         var runContext = runContextFactory.of();
-        RetrieveBalance.Output output = task.run(runContext);
+        Retrieve.Output output = task.run(runContext);
 
         assertNotNull(output.getAvailable());
         assertNotNull(output.getPending());

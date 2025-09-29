@@ -38,7 +38,7 @@ import java.util.Map;
 
                 tasks:
                   - id: handle_webhook
-                    type: io.kestra.plugin.stripe.webhook.HandleWebhookEvent
+                    type: io.kestra.plugin.stripe.webhook.HandleEvent
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     payload: "{{ trigger.payload }}"
                     signatureHeader: "{{ trigger.headers['Stripe-Signature'] }}"
@@ -47,7 +47,7 @@ import java.util.Map;
         )
     }
 )
-public class HandleWebhookEvent extends AbstractStripe implements RunnableTask<HandleWebhookEvent.Output> {
+public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEvent.Output> {
 
     @Schema(title = "Raw webhook payload from Stripe")
     @NotNull

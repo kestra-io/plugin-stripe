@@ -38,14 +38,14 @@ import java.util.Map;
 
                 tasks:
                   - id: get_customer
-                    type: io.kestra.plugin.stripe.customer.GetCustomer
+                    type: io.kestra.plugin.stripe.customer.Get
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     customerId: "cus_123456789"
                 """
         )
     }
 )
-public class GetCustomer extends AbstractStripe implements RunnableTask<GetCustomer.Output> {
+public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
 
     @Schema(title = "The ID of the customer to retrieve.", required = true)
     @NotNull

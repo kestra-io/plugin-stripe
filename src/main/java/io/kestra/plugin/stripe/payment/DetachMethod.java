@@ -37,14 +37,14 @@ import java.util.Map;
 
                 tasks:
                   - id: detach_pm
-                    type: io.kestra.plugin.stripe.payment.DetachPaymentMethod
+                    type: io.kestra.plugin.stripe.payment.DetachMethod
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     paymentMethodId: pm_123
                 """
         )
     }
 )
-public class DetachPaymentMethod extends AbstractStripe implements RunnableTask<DetachPaymentMethod.Output> {
+public class DetachMethod extends AbstractStripe implements RunnableTask<DetachMethod.Output> {
 
     @NotNull
     @PluginProperty

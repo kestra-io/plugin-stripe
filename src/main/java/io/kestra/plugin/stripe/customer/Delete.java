@@ -37,14 +37,14 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: delete_customer
-                    type: io.kestra.plugin.stripe.customer.DeleteCustomer
+                    type: io.kestra.plugin.stripe.customer.Delete
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     customerId: "cus_123456789"
                 """
         )
     }
 )
-public class DeleteCustomer extends AbstractStripe implements RunnableTask<DeleteCustomer.Output> {
+public class Delete extends AbstractStripe implements RunnableTask<Delete.Output> {
 
     @Schema(title = "The ID of the customer to delete.", required = true)
     @NotNull

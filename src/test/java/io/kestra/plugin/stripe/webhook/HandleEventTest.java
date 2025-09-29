@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
-class HandleWebhookEventTest extends AbstractStripeTest {
+class HandleEventTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -27,7 +27,7 @@ class HandleWebhookEventTest extends AbstractStripeTest {
         String testSignature = "t=123456,v1=test_signature";
         String testSecret = "whsec_test_secret";
 
-        HandleWebhookEvent task = HandleWebhookEvent.builder()
+        HandleEvent task = HandleEvent.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .payload(Property.ofValue(testPayload))
             .signatureHeader(Property.ofValue(testSignature))

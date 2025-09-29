@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class CreateCustomerTest extends AbstractStripeTest {
+class CreateTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -28,7 +28,7 @@ class CreateCustomerTest extends AbstractStripeTest {
     void testCreateCustomerFull() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        CreateCustomer task = CreateCustomer.builder()
+        Create task = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Test User"))
             .email(Property.ofValue("testuser@example.com"))
@@ -38,7 +38,7 @@ class CreateCustomerTest extends AbstractStripeTest {
             )))
             .build();
 
-        CreateCustomer.Output output = task.run(runContext);
+        Create.Output output = task.run(runContext);
 
         assertThat(output.getCustomerId(), is(notNullValue()));
         assertThat(output.getCustomerData().get("name"), is("Test User"));
@@ -54,12 +54,12 @@ class CreateCustomerTest extends AbstractStripeTest {
     void testCreateCustomerMinimal() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        CreateCustomer task = CreateCustomer.builder()
+        Create task = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .email(Property.ofValue("minimal@example.com"))
             .build();
 
-        CreateCustomer.Output output = task.run(runContext);
+        Create.Output output = task.run(runContext);
 
         assertThat(output.getCustomerId(), is(notNullValue()));
         assertThat(output.getCustomerData().get("email"), is("minimal@example.com"));

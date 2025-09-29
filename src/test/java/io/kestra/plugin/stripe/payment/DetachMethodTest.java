@@ -14,27 +14,30 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
-class ListPaymentIntentsTest extends AbstractStripeTest {
+class DetachMethodTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    void listPaymentIntents() throws Exception {
+    void detachPaymentMethod() throws Exception {
         Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
 
         // Wrap all Property fields
-        ListPaymentIntents task = ListPaymentIntents.builder()
-            .apiKey(Property.ofValue(getApiKey()))   // ✅ wrap in Property
-            .limit(Property.ofValue(3L))             // ✅ wrap in Property
+        DetachMethod task = DetachMethod.builder()
+            .apiKey(Property.ofValue(getApiKey()))
+            .paymentMethodId(Property.ofValue("pm_test_id"))
             .build();
 
         RunContext runContext = runContextFactory.of(Map.of());
-        ListPaymentIntents.Output output = task.run(runContext);
+        DetachMethod.Output output = task.run(runContext);
 
-        assertNotNull(output.getPaymentIntents());
-        assertTrue(output.getPaymentIntents().size() <= 3);
+        assertNotNull(output.getId());
+        // After detachment, customer should be null
+        assertNull(output.getCustomer());
+        assertNotNull(output.getType());
+        assertNotNull(output.getRawResponse());  // ✅ use getRawResponse()
 
-        System.out.println("Listed PaymentIntents count: " + output.getPaymentIntents().size());
+        System.out.println("Detached PaymentMethod ID: " + output.getId());
     }
 }

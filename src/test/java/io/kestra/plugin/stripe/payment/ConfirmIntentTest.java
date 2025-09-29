@@ -18,7 +18,8 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class RefundPaymentTest extends AbstractStripeTest {
+class ConfirmIntentTest extends AbstractStripeTest {
+
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -26,17 +27,16 @@ class RefundPaymentTest extends AbstractStripeTest {
     void run() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        // ⚠️ Replace with a real test Charge ID or PaymentIntent ID
-        RefundPayment task = RefundPayment.builder()
-            .apiKey(Property.ofValue(getApiKey()))
-            .chargeId(Property.ofValue("ch_test_123")) // Replace with a real test charge ID
-            .amount(Property.ofValue(500L)) // partial refund of $5.00 (if charge was more)
+        // ⚠️ Requires a valid PaymentIntent ID from your Stripe test account
+        ConfirmIntent task = ConfirmIntent.builder()
+            .apiKey(Property.ofValue(getApiKey()))        // ✅ Wrap in Property.ofValue
+            .paymentIntentId(Property.ofValue("pi_test_123")) // ✅ Also wrap
             .build();
 
-        RefundPayment.Output output = task.run(runContext);
+        ConfirmIntent.Output output = task.run(runContext);
 
-        assertThat(output.getRefundId(), notNullValue());
-        assertThat(output.getStatus(), anyOf(equalTo("succeeded"), equalTo("pending")));
-        assertThat(output.getRaw(), containsString("refund"));
+        assertThat(output.getPaymentIntentId(), notNullValue());
+        assertThat(output.getStatus(), not(isEmptyOrNullString()));
+        assertThat(output.getRaw(), containsString("payment_intent"));
     }
 }

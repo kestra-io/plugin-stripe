@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class DeleteCustomerTest extends AbstractStripeTest {
+class DeleteTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -27,23 +27,23 @@ class DeleteCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to delete
-        CreateCustomer createTask = CreateCustomer.builder()
+        Create createTask = Create.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Temp Delete User"))
             .email(Property.ofValue("tempdelete@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(runContext);
+        Create.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
         assertThat(customerId, is(notNullValue()));
 
         // Now delete the customer
-        DeleteCustomer deleteTask = DeleteCustomer.builder()
+        Delete deleteTask = Delete.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue(customerId))
             .build();
 
-        DeleteCustomer.Output output = deleteTask.run(runContext);
+        Delete.Output output = deleteTask.run(runContext);
 
         // Assertions
         assertThat(output.getCustomerId(), is(customerId));
@@ -57,7 +57,7 @@ class DeleteCustomerTest extends AbstractStripeTest {
         RunContext runContext = runContextFactory.of();
 
         // Attempt to delete a non-existent customer
-        DeleteCustomer deleteTask = DeleteCustomer.builder()
+        Delete deleteTask = Delete.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue("cus_invalid123"))
             .build();

@@ -5,9 +5,10 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
+
+import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -17,27 +18,25 @@ import static org.hamcrest.Matchers.*;
     value = "canNotBeEnabled",
     disabledReason = "Needs Stripe API key to work"
 )
-class AttachPaymentMethodTest extends AbstractStripeTest {
-
+class RefundTest extends AbstractStripeTest {
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    void attachPaymentMethod() throws Exception {
+    void run() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        // Use actual test IDs from your Stripe test account
-        AttachPaymentMethod task = AttachPaymentMethod.builder()
+        // ⚠️ Replace with a real test Charge ID or PaymentIntent ID
+        Refund task = Refund.builder()
             .apiKey(Property.ofValue(getApiKey()))
-            .paymentMethodId(Property.ofValue("pm_test_id"))
-            .customerId(Property.ofValue("cus_test_id"))
+            .chargeId(Property.ofValue("ch_test_123")) // Replace with a real test charge ID
+            .amount(Property.ofValue(500L)) // partial refund of $5.00 (if charge was more)
             .build();
 
-        AttachPaymentMethod.Output output = task.run(runContext);
+        Refund.Output output = task.run(runContext);
 
-        assertThat(output.getPaymentMethodId(), is(notNullValue()));
-        assertThat(output.getCustomerId(), is("cus_test_id"));
-        assertThat(output.getType(), is(notNullValue()));
-        assertThat(output.getPaymentMethodData(), is(notNullValue()));
+        assertThat(output.getRefundId(), notNullValue());
+        assertThat(output.getStatus(), anyOf(equalTo("succeeded"), equalTo("pending")));
+        assertThat(output.getRaw(), containsString("refund"));
     }
 }
