@@ -52,12 +52,6 @@ public class DeleteCustomer extends AbstractStripe implements RunnableTask<Delet
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
             .as(String.class)
@@ -65,8 +59,7 @@ public class DeleteCustomer extends AbstractStripe implements RunnableTask<Delet
 
         Customer customer;
         try {
-            customer = Customer.retrieve(renderedCustomerId);
-            customer = customer.delete(); // Soft-delete the customer
+            customer = client(runContext).customers().delete(renderedCustomerId);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to delete Stripe customer: " + e.getMessage(), e);
         }

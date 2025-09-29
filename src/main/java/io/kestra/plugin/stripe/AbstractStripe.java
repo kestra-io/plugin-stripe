@@ -1,6 +1,7 @@
 package io.kestra.plugin.stripe;
 
 import com.stripe.StripeClient;
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
@@ -26,7 +27,7 @@ public abstract class AbstractStripe extends Task implements StripeInterface {
     /**
      * Returns a configured Stripe client.
      */
-    protected StripeClient client(RunContext runContext) {
+    protected StripeClient client(RunContext runContext) throws IllegalVariableEvaluationException {
         String renderedApiKey = runContext.render(this.apiKey)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));

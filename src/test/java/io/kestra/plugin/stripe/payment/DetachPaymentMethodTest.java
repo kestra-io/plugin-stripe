@@ -1,7 +1,9 @@
 package io.kestra.plugin.stripe.payment;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.tasks.runners.RunContextFactory;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assumptions;
@@ -21,19 +23,21 @@ class DetachPaymentMethodTest extends AbstractStripeTest {
     void detachPaymentMethod() throws Exception {
         Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
 
-        // You need to create a test customer and attach a payment method first
+        // Wrap all Property fields
         DetachPaymentMethod task = DetachPaymentMethod.builder()
-            .apiKey(getApiKey())
-            .paymentMethodId("pm_test_id")
+            .apiKey(Property.ofValue(getApiKey()))
+            .paymentMethodId(Property.ofValue("pm_test_id"))
             .build();
 
-        var runContext = runContextFactory.of(Map.of());
+        RunContext runContext = runContextFactory.of(Map.of());
         DetachPaymentMethod.Output output = task.run(runContext);
 
         assertNotNull(output.getId());
         // After detachment, customer should be null
         assertNull(output.getCustomer());
         assertNotNull(output.getType());
-        assertNotNull(output.getRaw());
+        assertNotNull(output.getRawResponse());  // ✅ use getRawResponse()
+
+        System.out.println("Detached PaymentMethod ID: " + output.getId());
     }
 }

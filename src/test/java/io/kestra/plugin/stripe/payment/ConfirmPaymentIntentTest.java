@@ -1,18 +1,25 @@
 package io.kestra.plugin.stripe.payment;
 
+import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@EnabledIf("!io.kestra.plugin.stripe.AbstractStripeTest.canNotBeEnabled()")
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class ConfirmPaymentIntentTest extends AbstractStripeTest {
+
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -20,10 +27,10 @@ class ConfirmPaymentIntentTest extends AbstractStripeTest {
     void run() throws Exception {
         RunContext runContext = runContextFactory.of();
 
-        // ⚠️ Requires a valid PaymentIntent ID (replace with one from test mode)
+        // ⚠️ Requires a valid PaymentIntent ID from your Stripe test account
         ConfirmPaymentIntent task = ConfirmPaymentIntent.builder()
-            .apiKey(getApiKey())
-            .paymentIntentId("pi_test_123") // Replace with a real test PaymentIntent ID
+            .apiKey(Property.ofValue(getApiKey()))        // ✅ Wrap in Property.ofValue
+            .paymentIntentId(Property.ofValue("pi_test_123")) // ✅ Also wrap
             .build();
 
         ConfirmPaymentIntent.Output output = task.run(runContext);

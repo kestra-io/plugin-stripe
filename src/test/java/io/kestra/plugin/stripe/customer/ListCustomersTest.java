@@ -1,23 +1,32 @@
 package io.kestra.plugin.stripe.customer;
 
+import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.runners.MockRunContext;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-public class ListCustomersTest extends AbstractStripeTest {
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
+class ListCustomersTest extends AbstractStripeTest {
+
+    @Inject
+    private RunContextFactory runContextFactory;
 
     @Test
     void testListCustomers() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // Create a temporary customer to ensure at least one exists
         CreateCustomer createTask = CreateCustomer.builder()
@@ -26,8 +35,8 @@ public class ListCustomersTest extends AbstractStripeTest {
             .email(Property.ofValue("templist@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
-        assertNotNull(created.getCustomerId());
+        CreateCustomer.Output created = createTask.run(runContext);
+        assertThat(created.getCustomerId(), is(notNullValue()));
 
         // List customers
         ListCustomers listTask = ListCustomers.builder()
@@ -35,24 +44,21 @@ public class ListCustomersTest extends AbstractStripeTest {
             .limit(Property.ofValue(5))
             .build();
 
-        ListCustomers.Output output = listTask.run(new MockRunContext());
+        ListCustomers.Output output = listTask.run(runContext);
 
-        assertNotNull(output.getCustomers());
-        assertFalse(output.getCustomers().isEmpty(), "Customer list should not be empty");
-        assertTrue(output.getTotalCount() > 0, "Total count should be greater than 0");
+        assertThat(output.getCustomers(), is(notNullValue()));
+        assertThat(output.getCustomers().isEmpty(), is(false));
+        assertThat(output.getTotalCount(), greaterThan(0));
 
         // Optionally, check that the recently created customer is in the list
         boolean found = output.getCustomers().stream()
             .anyMatch(c -> c.get("id").equals(created.getCustomerId()));
-        assertTrue(found, "Created customer should be in the list");
+        assertThat(found, is(true));
     }
 
     @Test
     void testListCustomersWithEmailFilter() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // Create a customer with a unique email
         String uniqueEmail = "filtertest+" + System.currentTimeMillis() + "@example.com";
@@ -62,8 +68,8 @@ public class ListCustomersTest extends AbstractStripeTest {
             .email(Property.ofValue(uniqueEmail))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
-        assertNotNull(created.getCustomerId());
+        CreateCustomer.Output created = createTask.run(runContext);
+        assertThat(created.getCustomerId(), is(notNullValue()));
 
         // List customers filtered by email
         ListCustomers listTask = ListCustomers.builder()
@@ -71,11 +77,11 @@ public class ListCustomersTest extends AbstractStripeTest {
             .email(Property.ofValue(uniqueEmail))
             .build();
 
-        ListCustomers.Output output = listTask.run(new MockRunContext());
+        ListCustomers.Output output = listTask.run(runContext);
 
-        assertNotNull(output.getCustomers());
-        assertEquals(1, output.getCustomers().size(), "Should return only one customer");
+        assertThat(output.getCustomers(), is(notNullValue()));
+        assertThat(output.getCustomers().size(), is(1));
         Map<String, Object> customer = output.getCustomers().get(0);
-        assertEquals(uniqueEmail, customer.get("email"));
+        assertThat(customer.get("email"), is(uniqueEmail));
     }
 }

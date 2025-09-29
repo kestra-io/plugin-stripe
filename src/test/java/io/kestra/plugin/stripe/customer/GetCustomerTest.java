@@ -1,22 +1,30 @@
 package io.kestra.plugin.stripe.customer;
 
+import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.runners.MockRunContext;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
+class GetCustomerTest extends AbstractStripeTest {
 
-public class GetCustomerTest extends AbstractStripeTest {
+    @Inject
+    private RunContextFactory runContextFactory;
 
     @Test
     void testGetCustomer() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to retrieve
         CreateCustomer createTask = CreateCustomer.builder()
@@ -25,9 +33,9 @@ public class GetCustomerTest extends AbstractStripeTest {
             .email(Property.ofValue("tempget@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
+        CreateCustomer.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
-        assertNotNull(customerId);
+        assertThat(customerId, is(notNullValue()));
 
         // Retrieve the customer
         GetCustomer getTask = GetCustomer.builder()
@@ -35,21 +43,18 @@ public class GetCustomerTest extends AbstractStripeTest {
             .customerId(Property.ofValue(customerId))
             .build();
 
-        GetCustomer.Output output = getTask.run(new MockRunContext());
+        GetCustomer.Output output = getTask.run(runContext);
 
         // Assertions
-        assertEquals(customerId, output.getCustomerId());
-        assertNotNull(output.getCustomerData());
-        assertEquals("Temp Get User", output.getCustomerData().get("name"));
-        assertEquals("tempget@example.com", output.getCustomerData().get("email"));
+        assertThat(output.getCustomerId(), is(customerId));
+        assertThat(output.getCustomerData(), is(notNullValue()));
+        assertThat(output.getCustomerData().get("name"), is("Temp Get User"));
+        assertThat(output.getCustomerData().get("email"), is("tempget@example.com"));
     }
 
     @Test
     void testGetCustomerInvalidId() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // Attempt to retrieve a non-existent customer
         GetCustomer getTask = GetCustomer.builder()
@@ -57,10 +62,10 @@ public class GetCustomerTest extends AbstractStripeTest {
             .customerId(Property.ofValue("cus_invalid123"))
             .build();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            getTask.run(new MockRunContext());
+        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            getTask.run(runContext);
         });
 
-        assertTrue(exception.getMessage().contains("Failed to retrieve Stripe customer"));
+        assertThat(exception.getMessage(), containsString("Failed to retrieve Stripe customer"));
     }
 }

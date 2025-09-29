@@ -1,7 +1,8 @@
 package io.kestra.plugin.stripe.payment;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.tasks.runners.RunContextFactory;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assumptions;
@@ -23,8 +24,8 @@ class ListPaymentMethodsTest extends AbstractStripeTest {
 
         // You need a test customer with attached payment methods in Stripe dashboard
         ListPaymentMethods task = ListPaymentMethods.builder()
-            .apiKey(getApiKey())
-            .customerId("cus_test_id")
+            .apiKey(Property.ofValue(getApiKey()))
+            .customerId(Property.ofValue("cus_test_id"))
             .type("card")
             .build();
 

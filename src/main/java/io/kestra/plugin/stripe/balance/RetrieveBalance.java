@@ -2,12 +2,9 @@ package io.kestra.plugin.stripe.balance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stripe.Stripe;
 import com.stripe.model.Balance;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.stripe.AbstractStripe;
@@ -47,24 +44,15 @@ import java.util.stream.Collectors;
 )
 public class RetrieveBalance extends AbstractStripe implements RunnableTask<RetrieveBalance.Output> {
 
-    @PluginProperty(dynamic = true)
-    private Property<String> apiKey;
-
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Render API key
-        String key = runContext.render(apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        Stripe.apiKey = key;
-
-        Balance balance = Balance.retrieve();
+        Balance balance = client(runContext).balance().retrieve();
 
         // Parse raw JSON into Map
         String rawJson = balance.getLastResponse().body();
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> rawData = mapper.readValue(rawJson, new TypeReference<>() {});
 
-        // Convert available & pending to list of maps (cast amount to Object)
         List<Map<String, Object>> available = balance.getAvailable().stream()
             .map(money -> Map.<String, Object>of(
                 "currency", money.getCurrency(),

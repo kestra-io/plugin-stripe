@@ -1,48 +1,48 @@
 package io.kestra.plugin.stripe.payment;
 
+import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.runners.RunnerUtils;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class CreatePaymentIntentTest extends AbstractStripeTest {
+
     @Inject
     private RunContextFactory runContextFactory;
 
-    @Inject
-    private RunnerUtils runnerUtils;
-
     @Test
     void createPaymentIntent() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
-
         RunContext runContext = runContextFactory.of();
 
+        // Build the task using Property.ofValue for all fields
         CreatePaymentIntent task = CreatePaymentIntent.builder()
-            .apiKey(getApiKey())
-            .amount(1000L) // $10.00 if currency is USD
-            .currency("usd")
+            .apiKey(Property.ofValue(getApiKey()))
+            .amount(Property.ofValue(1000L)) // $10.00 if currency is USD
+            .currency(Property.ofValue("usd"))
             .build();
 
         CreatePaymentIntent.Output output = task.run(runContext);
 
-        assertNotNull(output);
-        assertNotNull(output.getPaymentIntentId(), "PaymentIntent ID should not be null");
-        assertEquals("requires_payment_method", output.getStatus(), "Newly created intent should require payment method");
-        assertNotNull(output.getClientSecret(), "Client secret should not be null");
+        assertThat(output, is(notNullValue()));
+        assertThat(output.getPaymentIntentId(), is(notNullValue()));
+        assertThat(output.getStatus(), is("requires_payment_method"));
+        assertThat(output.getClientSecret(), is(notNullValue()));
 
         // raw response sanity check
-        assertTrue(output.getRawResponse().containsKey("id"));
-        assertTrue(output.getRawResponse().containsKey("status"));
+        assertThat(output.getRawResponse(), hasKey("id"));
+        assertThat(output.getRawResponse(), hasKey("status"));
 
         System.out.println("Created PaymentIntent: " + output.getPaymentIntentId());
     }

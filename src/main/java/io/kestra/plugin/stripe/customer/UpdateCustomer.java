@@ -69,12 +69,6 @@ public class UpdateCustomer extends AbstractStripe implements RunnableTask<Updat
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
             .as(String.class)
@@ -102,11 +96,10 @@ public class UpdateCustomer extends AbstractStripe implements RunnableTask<Updat
 
         CustomerUpdateParams params = builder.build();
 
-        // Update customer
+        // Update customer using AbstractStripe client
         Customer customer;
         try {
-            customer = Customer.retrieve(renderedCustomerId);
-            customer = customer.update(params);
+            customer = client(runContext).customers().update(renderedCustomerId, params);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to update Stripe customer: " + e.getMessage(), e);
         }

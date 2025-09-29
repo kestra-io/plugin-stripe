@@ -1,11 +1,10 @@
 package io.kestra.plugin.stripe.payment;
 
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentConfirmParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -14,9 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -51,30 +47,45 @@ public class ConfirmPaymentIntent extends AbstractStripe implements RunnableTask
     @NotNull
     private Property<String> paymentIntentId;
 
-    @Schema(title = "Optional parameters to pass when confirming the PaymentIntent.")
-    private Property<Map<String, Object>> params;
+    @Schema(title = "Optional payment method ID to use for confirmation.")
+    private Property<String> paymentMethod;
+
+    @Schema(title = "Optional return URL for redirect-based payment methods.")
+    private Property<String> returnUrl;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        Stripe.apiKey = apiKey;
-
         // Resolve PaymentIntent ID
         String renderedId = runContext.render(this.paymentIntentId)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentIntent ID is required"));
 
-        // Resolve params (optional, defaults to empty map)
-        Map<String, Object> renderedParams = this.params != null
-            ? runContext.render(this.params).asMap(String.class, Object.class)
-            : new HashMap<>();
+        // Resolve optional parameters
+        String renderedPaymentMethod = this.paymentMethod != null
+            ? runContext.render(this.paymentMethod).as(String.class).orElse(null)
+            : null;
+
+        String renderedReturnUrl = this.returnUrl != null
+            ? runContext.render(this.returnUrl).as(String.class).orElse(null)
+            : null;
 
         try {
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(renderedId);
-            PaymentIntent confirmed = paymentIntent.confirm(renderedParams);
+            // Build confirm params
+            PaymentIntentConfirmParams.Builder paramsBuilder = PaymentIntentConfirmParams.builder();
+
+            if (renderedPaymentMethod != null) {
+                paramsBuilder.setPaymentMethod(renderedPaymentMethod);
+            }
+
+            if (renderedReturnUrl != null) {
+                paramsBuilder.setReturnUrl(renderedReturnUrl);
+            }
+
+            // Use the client from AbstractStripe
+            PaymentIntent confirmed = client(runContext).paymentIntents().confirm(
+                renderedId,
+                paramsBuilder.build()
+            );
 
             return Output.builder()
                 .paymentIntentId(confirmed.getId())

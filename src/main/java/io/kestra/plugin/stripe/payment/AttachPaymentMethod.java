@@ -2,9 +2,9 @@ package io.kestra.plugin.stripe.payment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
+import com.stripe.param.PaymentMethodAttachParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -59,12 +59,6 @@ public class AttachPaymentMethod extends AbstractStripe implements RunnableTask<
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        Stripe.apiKey = apiKey;
-
         // Resolve parameters
         String pmId = runContext.render(this.paymentMethodId)
             .as(String.class)
@@ -76,8 +70,12 @@ public class AttachPaymentMethod extends AbstractStripe implements RunnableTask<
 
         PaymentMethod attached;
         try {
-            PaymentMethod paymentMethod = PaymentMethod.retrieve(pmId);
-            attached = paymentMethod.attach(Map.of("customer", cusId));
+            // Use the client from AbstractStripe
+            PaymentMethodAttachParams params = PaymentMethodAttachParams.builder()
+                .setCustomer(cusId)
+                .build();
+
+            attached = client(runContext).paymentMethods().attach(pmId, params);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to attach PaymentMethod to customer: " + e.getMessage(), e);
         }

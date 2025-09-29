@@ -53,18 +53,12 @@ public class DetachPaymentMethod extends AbstractStripe implements RunnableTask<
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve and set Stripe API key
-        String apiKey = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve PaymentMethod ID
         String pmId = runContext.render(this.paymentMethodId).as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentMethod ID is required"));
 
-        // Retrieve and detach PaymentMethod
-        PaymentMethod paymentMethod = PaymentMethod.retrieve(pmId);
-        PaymentMethod detached = paymentMethod.detach();
+        // Use the client from AbstractStripe
+        PaymentMethod detached = client(runContext).paymentMethods().detach(pmId);
 
         // Convert to Map
         ObjectMapper mapper = new ObjectMapper();

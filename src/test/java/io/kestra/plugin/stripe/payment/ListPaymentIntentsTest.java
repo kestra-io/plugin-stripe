@@ -1,7 +1,10 @@
 package io.kestra.plugin.stripe.payment;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.tasks.runners.RunContextFactory;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
+import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -11,7 +14,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
-class ListPaymentIntentsTest extends AbstractStripePaymentTest {
+class ListPaymentIntentsTest extends AbstractStripeTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -20,15 +23,18 @@ class ListPaymentIntentsTest extends AbstractStripePaymentTest {
     void listPaymentIntents() throws Exception {
         Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
 
+        // Wrap all Property fields
         ListPaymentIntents task = ListPaymentIntents.builder()
-            .apiKey(getApiKey())
-            .limit(3L)
+            .apiKey(Property.ofValue(getApiKey()))   // ✅ wrap in Property
+            .limit(Property.ofValue(3L))             // ✅ wrap in Property
             .build();
 
-        var runContext = runContextFactory.of(Map.of());
+        RunContext runContext = runContextFactory.of(Map.of());
         ListPaymentIntents.Output output = task.run(runContext);
 
         assertNotNull(output.getPaymentIntents());
         assertTrue(output.getPaymentIntents().size() <= 3);
+
+        System.out.println("Listed PaymentIntents count: " + output.getPaymentIntents().size());
     }
 }

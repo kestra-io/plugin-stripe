@@ -1,7 +1,8 @@
 package io.kestra.plugin.stripe.webhook;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.tasks.runners.RunContextFactory;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assumptions;
@@ -27,10 +28,10 @@ class HandleWebhookEventTest extends AbstractStripeTest {
         String testSecret = "whsec_test_secret";
 
         HandleWebhookEvent task = HandleWebhookEvent.builder()
-            .apiKey(getApiKey())
-            .payload(testPayload)
-            .signatureHeader(testSignature)
-            .endpointSecret(testSecret)
+            .apiKey(Property.ofValue(getApiKey()))
+            .payload(Property.ofValue(testPayload))
+            .signatureHeader(Property.ofValue(testSignature))
+            .endpointSecret(Property.ofValue(testSecret))
             .build();
 
         var runContext = runContextFactory.of(Map.of());

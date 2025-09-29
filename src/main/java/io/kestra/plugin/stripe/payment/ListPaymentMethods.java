@@ -58,7 +58,7 @@ public class ListPaymentMethods extends AbstractStripe implements RunnableTask<L
     @Schema(title = "Type of PaymentMethods to list (card, sepa_debit, etc.)")
     @PluginProperty
     @NotNull
-    private Property<String> type;
+    private Property<String> paymentMethodType;
 
     @PluginProperty
     private Property<String> apiKey;
@@ -72,7 +72,7 @@ public class ListPaymentMethods extends AbstractStripe implements RunnableTask<L
 
         // Resolve properties
         String cusId = runContext.render(this.customerId).as(String.class).orElseThrow();
-        String pmType = runContext.render(this.type).as(String.class).orElseThrow();
+        String pmType = runContext.render(this.paymentMethodType).as(String.class).orElseThrow();
 
         try {
             PaymentMethodListParams params = PaymentMethodListParams.builder()

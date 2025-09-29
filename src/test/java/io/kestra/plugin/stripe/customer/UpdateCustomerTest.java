@@ -1,22 +1,32 @@
 package io.kestra.plugin.stripe.customer;
 
+import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.runners.MockRunContext;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-public class UpdateCustomerTest extends AbstractStripeTest {
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
+class UpdateCustomerTest extends AbstractStripeTest {
+
+    @Inject
+    private RunContextFactory runContextFactory;
 
     @Test
     void testUpdateCustomerFull() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to update
         CreateCustomer createTask = CreateCustomer.builder()
@@ -26,39 +36,37 @@ public class UpdateCustomerTest extends AbstractStripeTest {
             .metadata(Property.ofValue(Map.of("plan", "trial")))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
-
+        CreateCustomer.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
-        assertNotNull(customerId);
+        assertThat(customerId, is(notNullValue()));
 
         // Now update the customer
         UpdateCustomer updateTask = UpdateCustomer.builder()
             .apiKey(Property.ofValue(getApiKey()))
             .customerId(Property.ofValue(customerId))
             .name(Property.ofValue("Updated User"))
-            .metadata(Property.ofValue(Map.of("plan", "pro", "updated_by", "test")))
+            .metadata(Property.ofValue(Map.of(
+                "plan", "pro",
+                "updated_by", "test"
+            )))
             .build();
 
-        UpdateCustomer.Output updated = updateTask.run(new MockRunContext());
+        UpdateCustomer.Output updated = updateTask.run(runContext);
 
         // Assertions
-        assertEquals(customerId, updated.getCustomerId());
-        assertNotNull(updated.getCustomerData());
-
-        assertEquals("Updated User", updated.getCustomerData().get("name"));
+        assertThat(updated.getCustomerId(), is(customerId));
+        assertThat(updated.getCustomerData(), is(notNullValue()));
+        assertThat(updated.getCustomerData().get("name"), is("Updated User"));
 
         Map<String, Object> metadata = (Map<String, Object>) updated.getCustomerData().get("metadata");
-        assertNotNull(metadata);
-        assertEquals("pro", metadata.get("plan"));
-        assertEquals("test", metadata.get("updated_by"));
+        assertThat(metadata, is(notNullValue()));
+        assertThat(metadata.get("plan"), is("pro"));
+        assertThat(metadata.get("updated_by"), is("test"));
     }
 
     @Test
     void testUpdateCustomerMinimal() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // Create a temporary customer
         CreateCustomer createTask = CreateCustomer.builder()
@@ -66,10 +74,9 @@ public class UpdateCustomerTest extends AbstractStripeTest {
             .email(Property.ofValue("minimalupdate@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
-
+        CreateCustomer.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
-        assertNotNull(customerId);
+        assertThat(customerId, is(notNullValue()));
 
         // Update only the email to same value (minimal update)
         UpdateCustomer updateTask = UpdateCustomer.builder()
@@ -77,11 +84,11 @@ public class UpdateCustomerTest extends AbstractStripeTest {
             .customerId(Property.ofValue(customerId))
             .build();
 
-        UpdateCustomer.Output updated = updateTask.run(new MockRunContext());
+        UpdateCustomer.Output updated = updateTask.run(runContext);
 
         // Assertions
-        assertEquals(customerId, updated.getCustomerId());
-        assertNotNull(updated.getCustomerData());
-        assertEquals("minimalupdate@example.com", updated.getCustomerData().get("email"));
+        assertThat(updated.getCustomerId(), is(customerId));
+        assertThat(updated.getCustomerData(), is(notNullValue()));
+        assertThat(updated.getCustomerData().get("email"), is("minimalupdate@example.com"));
     }
 }

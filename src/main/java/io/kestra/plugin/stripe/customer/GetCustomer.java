@@ -17,7 +17,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
-import java.util.HashMap;
 
 @SuperBuilder
 @ToString
@@ -54,12 +53,6 @@ public class GetCustomer extends AbstractStripe implements RunnableTask<GetCusto
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve customer ID
         String renderedCustomerId = runContext.render(this.customerId)
             .as(String.class)
@@ -67,7 +60,7 @@ public class GetCustomer extends AbstractStripe implements RunnableTask<GetCusto
 
         Customer customer;
         try {
-            customer = Customer.retrieve(renderedCustomerId);
+            customer = client(runContext).customers().retrieve(renderedCustomerId);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to retrieve Stripe customer: " + e.getMessage(), e);
         }

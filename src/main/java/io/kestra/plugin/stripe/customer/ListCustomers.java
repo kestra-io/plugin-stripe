@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
-import com.stripe.model.CustomerCollection;
+import com.stripe.model.StripeCollection;
 import com.stripe.param.CustomerListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -61,12 +61,6 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Initialize Stripe SDK
-        String apiKey = runContext.render(this.apiKey)
-            .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         Integer renderedLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
         String renderedEmail = this.email != null
             ? runContext.render(this.email).as(String.class).orElse(null)
@@ -79,9 +73,10 @@ public class ListCustomers extends AbstractStripe implements RunnableTask<ListCu
             paramsBuilder.setEmail(renderedEmail);
         }
 
-        CustomerCollection customers;
+        StripeCollection<Customer> customers;
         try {
-            customers = Customer.list(paramsBuilder.build());
+            // Use the client from AbstractStripe (instead of setting apiKey manually)
+            customers = client(runContext).customers().list(paramsBuilder.build());
         } catch (StripeException e) {
             throw new RuntimeException("Failed to list Stripe customers: " + e.getMessage(), e);
         }

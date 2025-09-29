@@ -6,13 +6,10 @@ import com.stripe.param.RefundCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.models.annotations.PluginProperty;
-import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.stripe.AbstractStripe;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -76,8 +73,6 @@ public class RefundPayment extends AbstractStripe implements RunnableTask<Refund
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String apiKey = runContext.render(this.apiKey).as(String.class).orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-
         String renderedChargeId = runContext.render(this.chargeId).as(String.class).orElse(null);
         String renderedPaymentIntentId = runContext.render(this.paymentIntentId).as(String.class).orElse(null);
         Long renderedAmount = runContext.render(this.amount).as(Long.class).orElse(null);
@@ -85,9 +80,6 @@ public class RefundPayment extends AbstractStripe implements RunnableTask<Refund
         if (renderedChargeId == null && renderedPaymentIntentId == null) {
             throw new IllegalArgumentException("Either chargeId or paymentIntentId must be provided.");
         }
-
-        // Set API key
-        com.stripe.Stripe.apiKey = apiKey;
 
         RefundCreateParams.Builder params = RefundCreateParams.builder();
 
@@ -102,7 +94,8 @@ public class RefundPayment extends AbstractStripe implements RunnableTask<Refund
         }
 
         try {
-            Refund refund = Refund.create(params.build());
+            // Use the client from AbstractStripe
+            Refund refund = client(runContext).refunds().create(params.build());
 
             return Output.builder()
                 .refundId(refund.getId())

@@ -1,17 +1,22 @@
 package io.kestra.plugin.stripe.payment;
 
 import io.kestra.core.junit.annotations.KestraTest;
-import io.kestra.core.tasks.runners.RunContextFactory;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class AttachPaymentMethodTest extends AbstractStripeTest {
 
     @Inject
@@ -19,21 +24,20 @@ class AttachPaymentMethodTest extends AbstractStripeTest {
 
     @Test
     void attachPaymentMethod() throws Exception {
-        Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
+        RunContext runContext = runContextFactory.of();
 
-        // You need to create a test customer and payment method in Stripe dashboard before running this
+        // Use actual test IDs from your Stripe test account
         AttachPaymentMethod task = AttachPaymentMethod.builder()
-            .apiKey(getApiKey())
-            .paymentMethodId("pm_test_id")
-            .customerId("cus_test_id")
+            .apiKey(Property.ofValue(getApiKey()))
+            .paymentMethodId(Property.ofValue("pm_test_id"))
+            .customerId(Property.ofValue("cus_test_id"))
             .build();
 
-        var runContext = runContextFactory.of(Map.of());
         AttachPaymentMethod.Output output = task.run(runContext);
 
-        assertNotNull(output.getId());
-        assertEquals("cus_test_id", output.getCustomer());
-        assertNotNull(output.getType());
-        assertNotNull(output.getRaw());
+        assertThat(output.getPaymentMethodId(), is(notNullValue()));
+        assertThat(output.getCustomerId(), is("cus_test_id"));
+        assertThat(output.getType(), is(notNullValue()));
+        assertThat(output.getPaymentMethodData(), is(notNullValue()));
     }
 }

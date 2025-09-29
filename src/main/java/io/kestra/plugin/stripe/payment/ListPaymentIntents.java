@@ -2,7 +2,6 @@ package io.kestra.plugin.stripe.payment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentListParams;
 import io.kestra.core.models.annotations.Example;
@@ -11,8 +10,8 @@ import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.stripe.AbstractStripe;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,12 +51,7 @@ import java.util.Map;
         )
     }
 )
-public class ListPaymentIntents implements RunnableTask<ListPaymentIntents.Output> {
-
-    @Schema(title = "Stripe API Key")
-    @NotNull
-    @PluginProperty
-    private Property<String> apiKey;
+public class ListPaymentIntents extends AbstractStripe implements RunnableTask<ListPaymentIntents.Output> {
 
     @Schema(title = "Maximum number of PaymentIntents to retrieve")
     @PluginProperty
@@ -69,11 +63,6 @@ public class ListPaymentIntents implements RunnableTask<ListPaymentIntents.Outpu
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve and set API key
-        String key = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        Stripe.apiKey = key;
-
         // Build parameters
         PaymentIntentListParams.Builder paramsBuilder = PaymentIntentListParams.builder();
 
@@ -87,8 +76,10 @@ public class ListPaymentIntents implements RunnableTask<ListPaymentIntents.Outpu
             paramsBuilder.setCustomer(resolvedCustomer);
         }
 
-        // Retrieve PaymentIntents
-        List<PaymentIntent> paymentIntents = PaymentIntent.list(paramsBuilder.build()).getData();
+        // Use the client from AbstractStripe
+        List<PaymentIntent> paymentIntents = client(runContext).paymentIntents()
+            .list(paramsBuilder.build())
+            .getData();
 
         // Convert each PaymentIntent to a Map
         ObjectMapper mapper = new ObjectMapper();

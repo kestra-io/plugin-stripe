@@ -1,22 +1,30 @@
 package io.kestra.plugin.stripe.customer;
 
+import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.runners.MockRunContext;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+@KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
+class DeleteCustomerTest extends AbstractStripeTest {
 
-public class DeleteCustomerTest extends AbstractStripeTest {
+    @Inject
+    private RunContextFactory runContextFactory;
 
     @Test
     void testDeleteCustomer() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // First, create a temporary customer to delete
         CreateCustomer createTask = CreateCustomer.builder()
@@ -25,9 +33,9 @@ public class DeleteCustomerTest extends AbstractStripeTest {
             .email(Property.ofValue("tempdelete@example.com"))
             .build();
 
-        CreateCustomer.Output created = createTask.run(new MockRunContext());
+        CreateCustomer.Output created = createTask.run(runContext);
         String customerId = created.getCustomerId();
-        assertNotNull(customerId);
+        assertThat(customerId, is(notNullValue()));
 
         // Now delete the customer
         DeleteCustomer deleteTask = DeleteCustomer.builder()
@@ -35,21 +43,18 @@ public class DeleteCustomerTest extends AbstractStripeTest {
             .customerId(Property.ofValue(customerId))
             .build();
 
-        DeleteCustomer.Output output = deleteTask.run(new MockRunContext());
+        DeleteCustomer.Output output = deleteTask.run(runContext);
 
         // Assertions
-        assertEquals(customerId, output.getCustomerId());
-        assertTrue(output.getDeleted(), "Customer should be marked as deleted");
-        assertNotNull(output.getCustomerData());
-        assertEquals(customerId, output.getCustomerData().get("id"));
+        assertThat(output.getCustomerId(), is(customerId));
+        assertThat(output.getDeleted(), is(true));
+        assertThat(output.getCustomerData(), is(notNullValue()));
+        assertThat(output.getCustomerData().get("id"), is(customerId));
     }
 
     @Test
     void testDeleteCustomerInvalidId() throws Exception {
-        if (canNotBeEnabled()) {
-            System.out.println("Stripe API key not set. Skipping test.");
-            return;
-        }
+        RunContext runContext = runContextFactory.of();
 
         // Attempt to delete a non-existent customer
         DeleteCustomer deleteTask = DeleteCustomer.builder()
@@ -57,10 +62,10 @@ public class DeleteCustomerTest extends AbstractStripeTest {
             .customerId(Property.ofValue("cus_invalid123"))
             .build();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            deleteTask.run(new MockRunContext());
+        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            deleteTask.run(runContext);
         });
 
-        assertTrue(exception.getMessage().contains("Failed to delete Stripe customer"));
+        assertThat(exception.getMessage(), containsString("Failed to delete Stripe customer"));
     }
 }

@@ -53,7 +53,7 @@ public class CreatePaymentMethod extends AbstractStripe implements RunnableTask<
     @NotNull
     @PluginProperty
     @Schema(title = "The type of the PaymentMethod. Example: `card`")
-    private Property<String> type;
+    private Property<String> paymentMethodType;
 
     @PluginProperty
     @Schema(title = "Card number (required if type = card).")
@@ -73,13 +73,8 @@ public class CreatePaymentMethod extends AbstractStripe implements RunnableTask<
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve and set Stripe API key
-        String apiKey = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve inputs
-        String renderedType = runContext.render(this.type).as(String.class)
+        String renderedType = runContext.render(this.paymentMethodType).as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentMethod type is required"));
 
         PaymentMethodCreateParams.Builder builder = PaymentMethodCreateParams.builder()
@@ -104,8 +99,8 @@ public class CreatePaymentMethod extends AbstractStripe implements RunnableTask<
             );
         }
 
-        // Create PaymentMethod
-        PaymentMethod paymentMethod = PaymentMethod.create(builder.build());
+        // Use the client from AbstractStripe
+        PaymentMethod paymentMethod = client(runContext).paymentMethods().create(builder.build());
 
         // Convert to Map for raw response
         ObjectMapper mapper = new ObjectMapper();

@@ -7,17 +7,12 @@ import io.kestra.core.junit.annotations.KestraTest;
 public abstract class AbstractStripeTest {
     private static final String STRIPE_API_KEY = "";
 
-    /**
-     * Returns true if the test cannot run because required environment variables are missing.
-     */
     protected static boolean canNotBeEnabled() {
-        return Strings.isNullOrEmpty(getApiKey());
+        return STRIPE_API_KEY == null || STRIPE_API_KEY.isEmpty();
     }
 
-    /**
-     * Returns the Stripe API key to use in tests.
-     */
-    protected static String getApiKey() {
+    protected String getApiKey() {
         return STRIPE_API_KEY;
     }
+
 }

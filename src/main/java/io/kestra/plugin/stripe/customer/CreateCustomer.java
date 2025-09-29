@@ -64,11 +64,6 @@ public class CreateCustomer extends AbstractStripe implements RunnableTask<Creat
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key
-        String apiKey = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve parameters
         String renderedName = this.name != null
             ? runContext.render(this.name).as(String.class).orElse(null)
@@ -98,7 +93,8 @@ public class CreateCustomer extends AbstractStripe implements RunnableTask<Creat
 
         Customer customer;
         try {
-            customer = Customer.create(builder.build());
+            // Use the client from AbstractStripe
+            customer = client(runContext).customers().create(builder.build());
         } catch (StripeException e) {
             throw new RuntimeException("Failed to create Stripe customer: " + e.getMessage(), e);
         }

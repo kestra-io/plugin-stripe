@@ -70,11 +70,6 @@ public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Resolve API key and set Stripe API key
-        String apiKey = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        com.stripe.Stripe.apiKey = apiKey;
-
         // Resolve input fields
         Long renderedAmount = runContext.render(this.amount).as(Long.class)
             .orElseThrow(() -> new IllegalArgumentException("Amount is required"));
@@ -90,7 +85,8 @@ public class CreatePaymentIntent extends AbstractStripe implements RunnableTask<
             paramsBuilder.setCustomer(renderedCustomer);
         }
 
-        PaymentIntent intent = PaymentIntent.create(paramsBuilder.build());
+        // Use the client from AbstractStripe
+        PaymentIntent intent = client(runContext).paymentIntents().create(paramsBuilder.build());
 
         // Convert Stripe object JSON into Map
         ObjectMapper mapper = new ObjectMapper();
