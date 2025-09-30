@@ -7,7 +7,6 @@ import com.stripe.model.PaymentMethodCollection;
 import com.stripe.param.PaymentMethodListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -50,16 +49,13 @@ import java.util.List;
 public class ListMethods extends AbstractStripe implements RunnableTask<ListMethods.Output> {
 
     @Schema(title = "ID of the customer")
-    @PluginProperty
     @NotNull
     private Property<String> customerId;
 
     @Schema(title = "Type of PaymentMethods to list (card, sepa_debit, etc.)")
-    @PluginProperty
     @NotNull
     private Property<String> paymentMethodType;
 
-    @PluginProperty
     private Property<String> apiKey;
 
     @Override

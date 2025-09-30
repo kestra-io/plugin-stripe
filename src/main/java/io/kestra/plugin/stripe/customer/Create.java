@@ -1,13 +1,12 @@
 package io.kestra.plugin.stripe.customer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.param.CustomerCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -69,7 +68,9 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
     public Output run(RunContext runContext) throws Exception {
         // Resolve parameters
         String rName = this.name != null
-            ? runContext.render(this.name).as(String.class).orElse(null)
+            ? runContext.render(this.name)
+            .as(String.class)
+            .orElseThrow(() -> new IllegalArgumentException("Property 'name' is required and cannot be null"))
             : null;
 
         String rEmail = this.email != null
@@ -104,8 +105,7 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
 
         // Convert Stripe customer JSON to Map<String,Object> for output
         String json = customer.getLastResponse().body();
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> customerData = mapper.readValue(json, new TypeReference<>() {});
+        Map<String, Object> customerData = JacksonMapper.ofJson().readValue(json, new TypeReference<>() {});
 
         return Output.builder()
             .customerId(customer.getId())
@@ -120,7 +120,6 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
         private final String customerId;
 
         @Schema(title = "The full customer object as a map.")
-        @PluginProperty
         private final Map<String, Object> customerData;
     }
 }

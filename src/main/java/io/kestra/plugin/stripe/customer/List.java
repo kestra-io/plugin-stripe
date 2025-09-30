@@ -1,14 +1,13 @@
 package io.kestra.plugin.stripe.customer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.StripeCollection;
 import com.stripe.param.CustomerListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -79,12 +78,11 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
             throw new RuntimeException("Failed to list Stripe customers: " + e.getMessage(), e);
         }
 
-        ObjectMapper mapper = new ObjectMapper();
         java.util.List<Map<String, Object>> customerList = customers.getData().stream()
             .map(customer -> {
                 try {
                     String json = customer.getLastResponse().body();
-                    return mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+                    return JacksonMapper.ofJson().readValue(json, new TypeReference<Map<String, Object>>() {});
                 } catch (Exception ex) {
                     throw new RuntimeException("Failed to parse customer JSON: " + ex.getMessage(), ex);
                 }
@@ -101,7 +99,6 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "List of customer objects")
-        @PluginProperty
         private final java.util.List<Map<String, Object>> customers;
 
         @Schema(title = "Number of customers returned")

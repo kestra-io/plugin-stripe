@@ -1,12 +1,11 @@
 package io.kestra.plugin.stripe.payment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -49,20 +48,17 @@ import java.util.Map;
 )
 public class CreateIntent extends AbstractStripe implements RunnableTask<CreateIntent.Output> {
     @NotNull
-    @PluginProperty
     @Schema(
         title = "Amount intended to be collected by this PaymentIntent (in the smallest currency unit)."
     )
     private Property<Long> amount;
 
     @NotNull
-    @PluginProperty
     @Schema(
         title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)."
     )
     private Property<String> currency;
-
-    @PluginProperty
+    @NotNull
     @Schema(
         title = "ID of an existing customer to associate with this PaymentIntent."
     )
@@ -89,10 +85,9 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
         PaymentIntent intent = client(runContext).paymentIntents().create(paramsBuilder.build());
 
         // Convert Stripe object JSON into Map
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> paymentIntentMap = mapper.readValue(
+        Map<String, Object> paymentIntentMap = JacksonMapper.ofJson().readValue(
             intent.toJson(),
-            new TypeReference<Map<String, Object>>() {}
+            new TypeReference<>() {}
         );
 
         return Output.builder()

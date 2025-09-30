@@ -1,7 +1,7 @@
 package io.kestra.plugin.stripe.balance;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.Balance;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -49,8 +49,7 @@ public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Ou
 
         // Parse raw JSON into Map
         String rawJson = balance.getLastResponse().body();
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> rawData = mapper.readValue(rawJson, new TypeReference<>() {});
+        Map<String, Object> rawData = JacksonMapper.ofJson().readValue(rawJson, new TypeReference<>() {});
 
         List<Map<String, Object>> available = balance.getAvailable().stream()
             .map(money -> Map.<String, Object>of(

@@ -4,7 +4,7 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -61,8 +61,6 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
     @NotNull
     private Property<String> endpointSecret;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     @Override
     public Output run(RunContext runContext) throws Exception {
         String rawPayload = runContext.render(payload).as(String.class).orElseThrow();
@@ -74,7 +72,7 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
             StripeObject stripeObject = event.getData().getObject();
 
             // Convert StripeObject to Map
-            Map<String, Object> dataMap = MAPPER.convertValue(stripeObject, Map.class);
+            Map<String, Object> dataMap = JacksonMapper.ofJson().convertValue(stripeObject, Map.class);
 
             return Output.builder()
                 .id(event.getId())

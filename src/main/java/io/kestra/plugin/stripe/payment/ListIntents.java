@@ -1,12 +1,11 @@
 package io.kestra.plugin.stripe.payment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentListParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
@@ -54,11 +53,9 @@ import java.util.Map;
 public class ListIntents extends AbstractStripe implements RunnableTask<ListIntents.Output> {
 
     @Schema(title = "Maximum number of PaymentIntents to retrieve")
-    @PluginProperty
     private Property<Long> limit;
 
     @Schema(title = "Optional Customer ID to filter PaymentIntents")
-    @PluginProperty
     private Property<String> customer;
 
     @Override
@@ -82,10 +79,9 @@ public class ListIntents extends AbstractStripe implements RunnableTask<ListInte
             .getData();
 
         // Convert each PaymentIntent to a Map
-        ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> results = new ArrayList<>();
         for (PaymentIntent pi : paymentIntents) {
-            Map<String, Object> piMap = mapper.readValue(
+            Map<String, Object> piMap = JacksonMapper.ofJson().readValue(
                 pi.toJson(),
                 new TypeReference<Map<String, Object>>() {}
             );

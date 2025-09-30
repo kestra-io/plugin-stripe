@@ -1,15 +1,14 @@
 package io.kestra.plugin.stripe.payment;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.PaymentMethod;
 import com.stripe.param.PaymentMethodCreateParams;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -51,23 +50,18 @@ import java.util.Map;
 )
 public class CreateMethod extends AbstractStripe implements RunnableTask<CreateMethod.Output> {
     @NotNull
-    @PluginProperty
     @Schema(title = "The type of the PaymentMethod. Example: `card`")
     private Property<String> paymentMethodType;
 
-    @PluginProperty
     @Schema(title = "Card number (required if type = card).")
     private Property<String> cardNumber;
 
-    @PluginProperty
     @Schema(title = "Card expiration month.")
     private Property<Long> expMonth;
 
-    @PluginProperty
     @Schema(title = "Card expiration year.")
     private Property<Long> expYear;
 
-    @PluginProperty
     @Schema(title = "Card CVC.")
     private Property<String> cvc;
 
@@ -103,8 +97,7 @@ public class CreateMethod extends AbstractStripe implements RunnableTask<CreateM
         PaymentMethod paymentMethod = client(runContext).paymentMethods().create(builder.build());
 
         // Convert to Map for raw response
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> paymentMethodMap = mapper.readValue(
+        Map<String, Object> paymentMethodMap = JacksonMapper.ofJson().readValue(
             paymentMethod.toJson(),
             new TypeReference<Map<String, Object>>() {}
         );
