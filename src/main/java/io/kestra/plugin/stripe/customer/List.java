@@ -19,7 +19,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -60,16 +59,16 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        Integer renderedLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
-        String renderedEmail = this.email != null
+        Integer rLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
+        String rEmail = this.email != null
             ? runContext.render(this.email).as(String.class).orElse(null)
             : null;
 
         CustomerListParams.Builder paramsBuilder = CustomerListParams.builder()
-            .setLimit(Long.valueOf(renderedLimit));
+            .setLimit(Long.valueOf(rLimit));
 
-        if (renderedEmail != null && !renderedEmail.isEmpty()) {
-            paramsBuilder.setEmail(renderedEmail);
+        if (rEmail != null && !rEmail.isEmpty()) {
+            paramsBuilder.setEmail(rEmail);
         }
 
         StripeCollection<Customer> customers;
@@ -90,7 +89,7 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
                     throw new RuntimeException("Failed to parse customer JSON: " + ex.getMessage(), ex);
                 }
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return Output.builder()
             .customers(customerList)

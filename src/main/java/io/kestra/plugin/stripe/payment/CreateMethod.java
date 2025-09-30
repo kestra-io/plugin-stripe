@@ -74,13 +74,13 @@ public class CreateMethod extends AbstractStripe implements RunnableTask<CreateM
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve inputs
-        String renderedType = runContext.render(this.paymentMethodType).as(String.class)
+        String rType = runContext.render(this.paymentMethodType).as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentMethod type is required"));
 
         PaymentMethodCreateParams.Builder builder = PaymentMethodCreateParams.builder()
-            .setType(PaymentMethodCreateParams.Type.valueOf(renderedType.toUpperCase()));
+            .setType(PaymentMethodCreateParams.Type.valueOf(rType.toUpperCase()));
 
-        if ("card".equalsIgnoreCase(renderedType)) {
+        if ("card".equalsIgnoreCase(rType)) {
             String number = runContext.render(this.cardNumber).as(String.class)
                 .orElseThrow(() -> new IllegalArgumentException("Card number is required"));
             Long month = runContext.render(this.expMonth).as(Long.class)

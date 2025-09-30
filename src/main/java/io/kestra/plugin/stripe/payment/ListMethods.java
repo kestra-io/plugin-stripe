@@ -18,7 +18,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -84,7 +83,7 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
 
             List<String> pmIds = collection.getData().stream()
                 .map(PaymentMethod::getId)
-                .collect(Collectors.toList());
+                .toList();
 
             return Output.builder()
                 .customerId(cusId)

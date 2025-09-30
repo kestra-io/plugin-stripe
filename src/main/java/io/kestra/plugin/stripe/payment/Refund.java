@@ -72,24 +72,24 @@ public class Refund extends AbstractStripe implements RunnableTask<Refund.Output
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        String renderedChargeId = runContext.render(this.chargeId).as(String.class).orElse(null);
-        String renderedPaymentIntentId = runContext.render(this.paymentIntentId).as(String.class).orElse(null);
-        Long renderedAmount = runContext.render(this.amount).as(Long.class).orElse(null);
+        String rChargeId = runContext.render(this.chargeId).as(String.class).orElse(null);
+        String rPaymentIntentId = runContext.render(this.paymentIntentId).as(String.class).orElse(null);
+        Long rAmount = runContext.render(this.amount).as(Long.class).orElse(null);
 
-        if (renderedChargeId == null && renderedPaymentIntentId == null) {
+        if (rChargeId == null && rPaymentIntentId == null) {
             throw new IllegalArgumentException("Either chargeId or paymentIntentId must be provided.");
         }
 
         RefundCreateParams.Builder params = RefundCreateParams.builder();
 
-        if (renderedChargeId != null) {
-            params.setCharge(renderedChargeId);
+        if (rChargeId != null) {
+            params.setCharge(rChargeId);
         }
-        if (renderedPaymentIntentId != null) {
-            params.setPaymentIntent(renderedPaymentIntentId);
+        if (rPaymentIntentId != null) {
+            params.setPaymentIntent(rPaymentIntentId);
         }
-        if (renderedAmount != null) {
-            params.setAmount(renderedAmount);
+        if (rAmount != null) {
+            params.setAmount(rAmount);
         }
 
         try {

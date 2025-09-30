@@ -28,10 +28,10 @@ public abstract class AbstractStripe extends Task implements StripeInterface {
      * Returns a configured Stripe client.
      */
     protected StripeClient client(RunContext runContext) throws IllegalVariableEvaluationException {
-        String renderedApiKey = runContext.render(this.apiKey)
+        String rApiKey = runContext.render(this.apiKey)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
 
-        return new StripeClient(renderedApiKey);
+        return new StripeClient(rApiKey);
     }
 }

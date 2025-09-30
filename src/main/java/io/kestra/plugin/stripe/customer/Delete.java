@@ -53,13 +53,13 @@ public class Delete extends AbstractStripe implements RunnableTask<Delete.Output
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve customer ID
-        String renderedCustomerId = runContext.render(this.customerId)
+        String rCustomerId = runContext.render(this.customerId)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
         Customer customer;
         try {
-            customer = client(runContext).customers().delete(renderedCustomerId);
+            customer = client(runContext).customers().delete(rCustomerId);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to delete Stripe customer: " + e.getMessage(), e);
         }

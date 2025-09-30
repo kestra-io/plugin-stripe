@@ -14,7 +14,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -58,7 +57,7 @@ public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Ou
                 "currency", money.getCurrency(),
                 "amount", money.getAmount()
             ))
-            .collect(Collectors.toList());
+            .toList();
 
         List<Map<String, Object>> pending = balance.getPending().stream()
             .map(money -> Map.<String, Object>of(

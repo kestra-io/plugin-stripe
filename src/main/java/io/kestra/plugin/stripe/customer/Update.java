@@ -70,19 +70,19 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve customer ID
-        String renderedCustomerId = runContext.render(this.customerId)
+        String rCustomerId = runContext.render(this.customerId)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
         // Resolve optional fields
-        String renderedName = this.name != null ? runContext.render(this.name).as(String.class).orElse(null) : null;
-        String renderedEmail = this.email != null ? runContext.render(this.email).as(String.class).orElse(null) : null;
-        Map<String, Object> renderedMetadata = this.metadata != null
+        String rName = this.name != null ? runContext.render(this.name).as(String.class).orElse(null) : null;
+        String rEmail = this.email != null ? runContext.render(this.email).as(String.class).orElse(null) : null;
+        Map<String, Object> rMetadata = this.metadata != null
             ? runContext.render(this.metadata).asMap(String.class, Object.class)
             : new HashMap<>();
 
         // Convert metadata to Map<String,String> for Stripe
-        Map<String, String> metadataForStripe = renderedMetadata.entrySet().stream()
+        Map<String, String> metadataForStripe = rMetadata.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 e -> e.getValue() == null ? "" : e.getValue().toString()
@@ -90,8 +90,8 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
 
         // Build update params
         CustomerUpdateParams.Builder builder = CustomerUpdateParams.builder();
-        if (renderedName != null) builder.setName(renderedName);
-        if (renderedEmail != null) builder.setEmail(renderedEmail);
+        if (rName != null) builder.setName(rName);
+        if (rEmail != null) builder.setEmail(rEmail);
         if (!metadataForStripe.isEmpty()) builder.putAllMetadata(metadataForStripe);
 
         CustomerUpdateParams params = builder.build();
@@ -99,7 +99,7 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
         // Update customer using AbstractStripe client
         Customer customer;
         try {
-            customer = client(runContext).customers().update(renderedCustomerId, params);
+            customer = client(runContext).customers().update(rCustomerId, params);
         } catch (StripeException e) {
             throw new RuntimeException("Failed to update Stripe customer: " + e.getMessage(), e);
         }

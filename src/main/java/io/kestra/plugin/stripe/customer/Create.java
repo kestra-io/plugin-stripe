@@ -13,6 +13,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.plugin.stripe.AbstractStripe;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -54,9 +55,11 @@ import java.util.stream.Collectors;
 public class Create extends AbstractStripe implements RunnableTask<Create.Output> {
 
     @Schema(title = "The customer's name.")
+    @NotNull
     private Property<String> name;
 
     @Schema(title = "The customer's email address.")
+    @NotNull
     private Property<String> email;
 
     @Schema(title = "Key-value pairs for storing additional information.")
@@ -65,20 +68,20 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve parameters
-        String renderedName = this.name != null
+        String rName = this.name != null
             ? runContext.render(this.name).as(String.class).orElse(null)
             : null;
 
-        String renderedEmail = this.email != null
+        String rEmail = this.email != null
             ? runContext.render(this.email).as(String.class).orElse(null)
             : null;
 
-        Map<String, Object> renderedMetadata = this.metadata != null
+        Map<String, Object> rMetadata = this.metadata != null
             ? runContext.render(this.metadata).asMap(String.class, Object.class)
             : new HashMap<>();
 
         // Convert metadata values to String for Stripe
-        Map<String, String> metadataForStripe = renderedMetadata.entrySet()
+        Map<String, String> metadataForStripe = rMetadata.entrySet()
             .stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
@@ -87,8 +90,8 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
 
         // Build customer create params
         CustomerCreateParams.Builder builder = CustomerCreateParams.builder();
-        if (renderedName != null) builder.setName(renderedName);
-        if (renderedEmail != null) builder.setEmail(renderedEmail);
+        if (rName != null) builder.setName(rName);
+        if (rEmail != null) builder.setEmail(rEmail);
         if (!metadataForStripe.isEmpty()) builder.putAllMetadata(metadataForStripe);
 
         Customer customer;

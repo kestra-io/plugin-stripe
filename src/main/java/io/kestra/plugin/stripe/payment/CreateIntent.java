@@ -71,18 +71,18 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve input fields
-        Long renderedAmount = runContext.render(this.amount).as(Long.class)
+        Long rAmount = runContext.render(this.amount).as(Long.class)
             .orElseThrow(() -> new IllegalArgumentException("Amount is required"));
-        String renderedCurrency = runContext.render(this.currency).as(String.class)
+        String rCurrency = runContext.render(this.currency).as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("Currency is required"));
-        String renderedCustomer = runContext.render(this.customer).as(String.class).orElse(null);
+        String rCustomer = runContext.render(this.customer).as(String.class).orElse(null);
 
         PaymentIntentCreateParams.Builder paramsBuilder = PaymentIntentCreateParams.builder()
-            .setAmount(renderedAmount)
-            .setCurrency(renderedCurrency);
+            .setAmount(rAmount)
+            .setCurrency(rCurrency);
 
-        if (renderedCustomer != null) {
-            paramsBuilder.setCustomer(renderedCustomer);
+        if (rCustomer != null) {
+            paramsBuilder.setCustomer(rCustomer);
         }
 
         // Use the client from AbstractStripe

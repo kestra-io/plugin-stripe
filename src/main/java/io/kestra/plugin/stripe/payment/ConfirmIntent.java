@@ -56,16 +56,16 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve PaymentIntent ID
-        String renderedId = runContext.render(this.paymentIntentId)
+        String rId = runContext.render(this.paymentIntentId)
             .as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("PaymentIntent ID is required"));
 
         // Resolve optional parameters
-        String renderedPaymentMethod = this.paymentMethod != null
+        String rPaymentMethod = this.paymentMethod != null
             ? runContext.render(this.paymentMethod).as(String.class).orElse(null)
             : null;
 
-        String renderedReturnUrl = this.returnUrl != null
+        String rReturnUrl = this.returnUrl != null
             ? runContext.render(this.returnUrl).as(String.class).orElse(null)
             : null;
 
@@ -73,17 +73,17 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
             // Build confirm params
             PaymentIntentConfirmParams.Builder paramsBuilder = PaymentIntentConfirmParams.builder();
 
-            if (renderedPaymentMethod != null) {
-                paramsBuilder.setPaymentMethod(renderedPaymentMethod);
+            if (rPaymentMethod != null) {
+                paramsBuilder.setPaymentMethod(rPaymentMethod);
             }
 
-            if (renderedReturnUrl != null) {
-                paramsBuilder.setReturnUrl(renderedReturnUrl);
+            if (rReturnUrl != null) {
+                paramsBuilder.setReturnUrl(rReturnUrl);
             }
 
             // Use the client from AbstractStripe
             PaymentIntent confirmed = client(runContext).paymentIntents().confirm(
-                renderedId,
+                rId,
                 paramsBuilder.build()
             );
 
@@ -94,7 +94,7 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
                 .raw(confirmed.toJson())
                 .build();
         } catch (StripeException e) {
-            throw new RuntimeException("Failed to confirm PaymentIntent: " + renderedId, e);
+            throw new RuntimeException("Failed to confirm PaymentIntent: " + rId, e);
         }
     }
 
