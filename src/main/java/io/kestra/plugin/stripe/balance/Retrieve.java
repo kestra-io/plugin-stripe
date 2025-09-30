@@ -65,7 +65,7 @@ public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Ou
                 "currency", money.getCurrency(),
                 "amount", money.getAmount()
             ))
-            .collect(Collectors.toList());
+            .toList();
 
         return Output.builder()
             .available(available)
