@@ -41,8 +41,7 @@ import java.util.Map;
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     type: "card"
                     cardNumber: "{{ secret('CREDIT_CARD_NUMBER') }}"
-                    expMonth: 12
-                    expYear: 2025
+                    expirationDate: "{{ secret('CREDIT_CARD_EXPIRATION') }}"
                     cvc: "123"
                 """
         )
