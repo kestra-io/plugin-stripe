@@ -40,7 +40,7 @@ import java.util.Map;
                     type: io.kestra.plugin.stripe.payment.CreateMethod
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     type: "card"
-                    cardNumber: "4242424242424242"
+                    cardNumber: "{{ secret('CREDIT_CARD_NUMBER') }}"
                     expMonth: 12
                     expYear: 2025
                     cvc: "123"
