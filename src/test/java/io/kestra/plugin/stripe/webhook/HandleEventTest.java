@@ -5,14 +5,18 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class HandleEventTest extends AbstractStripeTest {
 
     @Inject
@@ -20,8 +24,6 @@ class HandleEventTest extends AbstractStripeTest {
 
     @Test
     void handleWebhookEvent() throws Exception {
-        Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
-
         // Example payload and signature (replace with real test webhook payload & signature from Stripe)
         String testPayload = "{\"id\": \"evt_test\", \"object\": \"event\", \"type\": \"payment_intent.succeeded\", \"data\": {\"object\": {\"id\": \"pi_test\"}}}";
         String testSignature = "t=123456,v1=test_signature";

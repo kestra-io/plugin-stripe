@@ -6,14 +6,18 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class DetachMethodTest extends AbstractStripeTest {
 
     @Inject
@@ -21,8 +25,6 @@ class DetachMethodTest extends AbstractStripeTest {
 
     @Test
     void detachPaymentMethod() throws Exception {
-        Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
-
         // Wrap all Property fields
         DetachMethod task = DetachMethod.builder()
             .apiKey(Property.ofValue(getApiKey()))

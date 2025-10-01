@@ -6,14 +6,18 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @KestraTest
+@DisabledIf(
+    value = "canNotBeEnabled",
+    disabledReason = "Needs Stripe API key to work"
+)
 class ListIntentsTest extends AbstractStripeTest {
 
     @Inject
@@ -21,8 +25,6 @@ class ListIntentsTest extends AbstractStripeTest {
 
     @Test
     void listPaymentIntents() throws Exception {
-        Assumptions.assumeTrue(!canNotBeEnabled(), "Stripe API key is required");
-
         // Wrap all Property fields
         ListIntents task = ListIntents.builder()
             .apiKey(Property.ofValue(getApiKey()))   // ✅ wrap in Property

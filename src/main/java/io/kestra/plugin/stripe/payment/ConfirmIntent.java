@@ -90,7 +90,6 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
             return Output.builder()
                 .paymentIntentId(confirmed.getId())
                 .status(confirmed.getStatus())
-                .clientSecret(confirmed.getClientSecret())
                 .raw(confirmed.toJson())
                 .build();
         } catch (StripeException e) {
@@ -106,9 +105,6 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
 
         @Schema(title = "The status of the PaymentIntent.")
         private final String status;
-
-        @Schema(title = "The client secret associated with the PaymentIntent.")
-        private final String clientSecret;
 
         @Schema(title = "The raw JSON response from Stripe.")
         private final String raw;

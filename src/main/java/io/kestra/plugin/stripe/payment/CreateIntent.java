@@ -93,7 +93,6 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
         return Output.builder()
             .paymentIntentId(intent.getId())
             .status(intent.getStatus())
-            .clientSecret(intent.getClientSecret())
             .rawResponse(paymentIntentMap)
             .build();
     }
@@ -107,9 +106,6 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
 
         @Schema(title = "The status of the PaymentIntent.")
         private final String status;
-
-        @Schema(title = "The client secret used to complete the payment on client-side.")
-        private final String clientSecret;
 
         @Schema(title = "The raw PaymentIntent object.")
         private final Map<String, Object> rawResponse;
