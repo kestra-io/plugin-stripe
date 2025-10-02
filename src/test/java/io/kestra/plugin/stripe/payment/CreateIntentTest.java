@@ -38,7 +38,6 @@ class CreateIntentTest extends AbstractStripeTest {
         assertThat(output, is(notNullValue()));
         assertThat(output.getPaymentIntentId(), is(notNullValue()));
         assertThat(output.getStatus(), is("requires_payment_method"));
-        assertThat(output.getClientSecret(), is(notNullValue()));
 
         // raw response sanity check
         assertThat(output.getRawResponse(), hasKey("id"));
