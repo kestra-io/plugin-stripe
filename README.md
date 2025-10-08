@@ -7,8 +7,18 @@ It provides tasks for managing **customers, payments, payment methods, webhooks,
 
 ## 🔐 Authentication
 
+
 All tasks require a **Stripe API Key** (`sk_test_...` or `sk_live_...`).
 You should store the key as a [Kestra Secret](https://kestra.io/docs/concepts/secrets) and reference it inside your task.
+
+<p align="center">
+  <a href="https://twitter.com/kestra_io" style="margin: 0 10px;">
+        <img src="https://kestra.io/twitter.svg" alt="twitter" width="35" height="25" /></a>
+  <a href="https://www.linkedin.com/company/kestra/" style="margin: 0 10px;">
+        <img src="https://kestra.io/linkedin.svg" alt="linkedin" width="35" height="25" /></a>
+  <a href="https://www.youtube.com/@kestra-io" style="margin: 0 10px;">
+        <img src="https://kestra.io/youtube.svg" alt="youtube" width="35" height="25" /></a>
+</p>
 
 ```yaml
 apiKey: "{{ secret('STRIPE_API_KEY') }}"
