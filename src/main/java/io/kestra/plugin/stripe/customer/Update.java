@@ -74,8 +74,8 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
             .orElseThrow(() -> new IllegalArgumentException("customerId is required"));
 
         // Resolve optional fields
-        String rName = this.name != null ? runContext.render(this.name).as(String.class).orElse(null) : null;
-        String rEmail = this.email != null ? runContext.render(this.email).as(String.class).orElse(null) : null;
+        String rName = runContext.render(this.name).as(String.class).orElse(null);
+        String rEmail = runContext.render(this.email).as(String.class).orElse(null);
         Map<String, Object> rMetadata = this.metadata != null
             ? runContext.render(this.metadata).asMap(String.class, Object.class)
             : new HashMap<>();

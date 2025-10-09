@@ -77,19 +77,13 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
     @Override
     public Output run(RunContext runContext) throws Exception {
         // Resolve parameters
-        String rName = this.name != null
-            ? runContext.render(this.name)
+        String rName = runContext.render(this.name)
             .as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Property 'name' is required and cannot be null"))
-            : null;
+            .orElseThrow(() -> new IllegalArgumentException("Property 'name' is required and cannot be null"));
 
-        String rEmail = this.email != null
-            ? runContext.render(this.email).as(String.class).orElse(null)
-            : null;
+        String rEmail = runContext.render(this.email).as(String.class).orElse(null);
 
-        Map<String, Object> rMetadata = this.metadata != null
-            ? runContext.render(this.metadata).asMap(String.class, Object.class)
-            : new HashMap<>();
+        Map<String, Object> rMetadata = runContext.render(this.metadata).asMap(String.class, Object.class);
 
         // Convert metadata values to String for Stripe
         Map<String, String> metadataForStripe = rMetadata.entrySet()

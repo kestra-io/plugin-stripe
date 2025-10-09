@@ -61,13 +61,9 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
             .orElseThrow(() -> new IllegalArgumentException("PaymentIntent ID is required"));
 
         // Resolve optional parameters
-        String rPaymentMethod = this.paymentMethod != null
-            ? runContext.render(this.paymentMethod).as(String.class).orElse(null)
-            : null;
+        String rPaymentMethod = runContext.render(this.paymentMethod).as(String.class).orElse(null);
 
-        String rReturnUrl = this.returnUrl != null
-            ? runContext.render(this.returnUrl).as(String.class).orElse(null)
-            : null;
+        String rReturnUrl = runContext.render(this.returnUrl).as(String.class).orElse(null);
 
         try {
             // Build confirm params
