@@ -76,9 +76,7 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
         // Resolve optional fields
         String rName = runContext.render(this.name).as(String.class).orElse(null);
         String rEmail = runContext.render(this.email).as(String.class).orElse(null);
-        Map<String, Object> rMetadata = this.metadata != null
-            ? runContext.render(this.metadata).asMap(String.class, Object.class)
-            : new HashMap<>();
+        Map<String, Object> rMetadata = runContext.render(this.metadata).asMap(String.class, Object.class);
 
         // Convert metadata to Map<String,String> for Stripe
         Map<String, String> metadataForStripe = rMetadata.entrySet().stream()
