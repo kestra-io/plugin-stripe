@@ -59,9 +59,7 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
     @Override
     public Output run(RunContext runContext) throws Exception {
         Integer rLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
-        String rEmail = this.email != null
-            ? runContext.render(this.email).as(String.class).orElse(null)
-            : null;
+        String rEmail = runContext.render(this.email).as(String.class).orElse(null);
 
         CustomerListParams.Builder paramsBuilder = CustomerListParams.builder()
             .setLimit(Long.valueOf(rLimit));
