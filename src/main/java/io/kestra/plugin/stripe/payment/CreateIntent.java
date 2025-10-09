@@ -58,6 +58,7 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
         title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)."
     )
     private Property<String> currency;
+
     @NotNull
     @Schema(
         title = "ID of an existing customer to associate with this PaymentIntent."
