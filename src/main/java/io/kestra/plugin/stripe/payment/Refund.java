@@ -56,12 +56,12 @@ import lombok.experimental.SuperBuilder;
 )
 public class Refund extends AbstractStripe implements RunnableTask<Refund.Output> {
     @Schema(
-        title = "The ID of the Charge to refund. Either chargeId or paymentIntentId must be provided."
+        title = "The charge ID to refund. Either `chargeId` or `paymentIntentId` must be provided."
     )
     private Property<String> chargeId;
 
     @Schema(
-        title = "The ID of the PaymentIntent to refund. Either chargeId or paymentIntentId must be provided."
+        title = "The PaymentIntent ID to refund. Either `chargeId` or `paymentIntentId` must be provided."
     )
     private Property<String> paymentIntentId;
 
@@ -111,19 +111,19 @@ public class Refund extends AbstractStripe implements RunnableTask<Refund.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the refund.")
+        @Schema(title = "The refund ID")
         private final String refundId;
 
-        @Schema(title = "The status of the refund.")
+        @Schema(title = "The refund status")
         private final String status;
 
-        @Schema(title = "The refunded amount in cents.")
+        @Schema(title = "The refunded amount in cents")
         private final Long amount;
 
-        @Schema(title = "The currency of the refund.")
+        @Schema(title = "The refund currency")
         private final String currency;
 
-        @Schema(title = "The raw JSON response from Stripe.")
+        @Schema(title = "The raw JSON response from Stripe")
         private final String raw;
     }
 }

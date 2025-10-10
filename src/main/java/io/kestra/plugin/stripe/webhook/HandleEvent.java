@@ -24,7 +24,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Handle Stripe Webhook Events",
+    title = "Handle Stripe Webhook Events.",
     description = "This task receives a Stripe webhook payload, validates the signature, and outputs the parsed event."
 )
 @Plugin(
@@ -88,10 +88,10 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "ID of the Stripe event")
+        @Schema(title = "Stripe event ID")
         private final String id;
 
-        @Schema(title = "Type of Stripe event")
+        @Schema(title = "Stripe event Type")
         private final String type;
 
         @Schema(title = "Event data object")

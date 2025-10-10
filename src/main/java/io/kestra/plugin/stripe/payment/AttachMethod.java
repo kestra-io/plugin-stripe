@@ -24,8 +24,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Attach a PaymentMethod to a Customer.",
-    description = "This task attaches an existing PaymentMethod to a Stripe Customer and returns the attached PaymentMethod object."
+    title = "Attach a PaymentMethod to a customer.",
+    description = "This task attaches an existing PaymentMethod to a Stripe customer and returns the attached PaymentMethod object."
 )
 @Plugin(
     examples = {
@@ -48,11 +48,11 @@ import java.util.Map;
 )
 public class AttachMethod extends AbstractStripe implements RunnableTask<AttachMethod.Output> {
 
-    @Schema(title = "The ID of the PaymentMethod to attach.")
+    @Schema(title = "The PaymentMethod ID to attach")
     @NotNull
     private Property<String> paymentMethodId;
 
-    @Schema(title = "The ID of the Customer to attach the PaymentMethod to.")
+    @Schema(title = "The customer ID to attach the PaymentMethod to")
     @NotNull
     private Property<String> customerId;
 
@@ -94,16 +94,16 @@ public class AttachMethod extends AbstractStripe implements RunnableTask<AttachM
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the attached PaymentMethod.")
+        @Schema(title = "The PaymentMethod ID attached")
         private final String paymentMethodId;
 
-        @Schema(title = "The ID of the Customer the PaymentMethod is attached to.")
+        @Schema(title = "The customer ID the PaymentMethod is attached to")
         private final String customerId;
 
-        @Schema(title = "The type of the PaymentMethod (e.g., card, bank_account).")
+        @Schema(title = "The type of the PaymentMethod (e.g., card, bank_account)")
         private final String type;
 
-        @Schema(title = "The full PaymentMethod object as a map.")
+        @Schema(title = "The full PaymentMethod object as a map")
         private final Map<String, Object> paymentMethodData;
     }
 }

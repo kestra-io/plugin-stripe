@@ -28,7 +28,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List recent Payment Intents",
+    title = "List recent PaymentIntents.",
     description = "Retrieve a list of recent payment intents from Stripe with optional filters."
 )
 @Plugin(

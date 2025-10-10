@@ -22,8 +22,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Detach a PaymentMethod from a Customer.",
-    description = "This task detaches an existing PaymentMethod from a Stripe Customer."
+    title = "Detach a PaymentMethod from a customer.",
+    description = "This task detaches an existing PaymentMethod from a Stripe customer."
 )
 @Plugin(
     examples = {
@@ -46,7 +46,7 @@ import java.util.Map;
 public class DetachMethod extends AbstractStripe implements RunnableTask<DetachMethod.Output> {
 
     @NotNull
-    @Schema(title = "The ID of the PaymentMethod to detach.")
+    @Schema(title = "The PaymentMethod ID to detach")
     private Property<String> paymentMethodId;
 
     @Override
@@ -75,16 +75,16 @@ public class DetachMethod extends AbstractStripe implements RunnableTask<DetachM
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the detached PaymentMethod.")
+        @Schema(title = "The detached PaymentMethod ID")
         private final String id;
 
-        @Schema(title = "The ID of the customer (will be null after detachment).")
+        @Schema(title = "The customer ID (will be null after detachment)")
         private final String customer;
 
-        @Schema(title = "The type of the PaymentMethod.")
+        @Schema(title = "The PaymentMethod type (e.g., 'card')")
         private final String type;
 
-        @Schema(title = "The raw detached PaymentMethod object.")
+        @Schema(title = "The raw detached PaymentMethod object")
         private final Map<String, Object> rawResponse;
     }
 }

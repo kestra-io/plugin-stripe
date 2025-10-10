@@ -43,14 +43,14 @@ import lombok.experimental.SuperBuilder;
 )
 public class ConfirmIntent extends AbstractStripe implements RunnableTask<ConfirmIntent.Output> {
 
-    @Schema(title = "The ID of the PaymentIntent to confirm.")
+    @Schema(title = "The PaymentIntent ID to confirm")
     @NotNull
     private Property<String> paymentIntentId;
 
-    @Schema(title = "Optional payment method ID to use for confirmation.")
+    @Schema(title = "Optional payment method ID to use for confirmation")
     private Property<String> paymentMethod;
 
-    @Schema(title = "Optional return URL for redirect-based payment methods.")
+    @Schema(title = "Optional return URL for redirect-based payment methods")
     private Property<String> returnUrl;
 
     @Override
@@ -96,13 +96,13 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the confirmed PaymentIntent.")
+        @Schema(title = "The confirmed PaymentIntent ID")
         private final String paymentIntentId;
 
-        @Schema(title = "The status of the PaymentIntent.")
+        @Schema(title = "The PaymentIntent status")
         private final String status;
 
-        @Schema(title = "The raw JSON response from Stripe.")
+        @Schema(title = "The raw JSON response from Stripe")
         private final String raw;
     }
 }

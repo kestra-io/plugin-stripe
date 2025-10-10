@@ -49,19 +49,19 @@ import java.util.Map;
 public class CreateIntent extends AbstractStripe implements RunnableTask<CreateIntent.Output> {
     @NotNull
     @Schema(
-        title = "Amount intended to be collected by this PaymentIntent (in the smallest currency unit)."
+        title = "Amount intended to be collected by this PaymentIntent (in the smallest currency unit)"
     )
     private Property<Long> amount;
 
     @NotNull
     @Schema(
-        title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)."
+        title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)"
     )
     private Property<String> currency;
 
     @NotNull
     @Schema(
-        title = "ID of an existing customer to associate with this PaymentIntent."
+        title = "Existing customer ID to associate with this PaymentIntent"
     )
     private Property<String> customer;
 
@@ -102,13 +102,13 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the created PaymentIntent.")
+        @Schema(title = "The created PaymentIntent ID")
         private final String paymentIntentId;
 
-        @Schema(title = "The status of the PaymentIntent.")
+        @Schema(title = "The PaymentIntent status")
         private final String status;
 
-        @Schema(title = "The raw PaymentIntent object.")
+        @Schema(title = "The raw PaymentIntent object")
         private final Map<String, Object> rawResponse;
     }
 }

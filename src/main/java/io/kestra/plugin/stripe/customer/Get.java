@@ -46,7 +46,7 @@ import java.util.Map;
 )
 public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
 
-    @Schema(title = "The ID of the customer to retrieve.", required = true)
+    @Schema(title = "The customer ID to retrieve", required = true)
     @NotNull
     private Property<String> customerId;
 
@@ -78,10 +78,10 @@ public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the retrieved customer.")
+        @Schema(title = "The retrieved customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map.")
+        @Schema(title = "The full customer object as a map")
         private final Map<String, Object> customerData;
     }
 }

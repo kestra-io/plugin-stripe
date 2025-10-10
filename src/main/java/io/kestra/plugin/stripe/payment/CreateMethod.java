@@ -49,19 +49,19 @@ import java.util.Map;
 )
 public class CreateMethod extends AbstractStripe implements RunnableTask<CreateMethod.Output> {
     @NotNull
-    @Schema(title = "The type of the PaymentMethod. Example: `card`")
+    @Schema(title = "The PaymentMethod type – e.g., `card`")
     private Property<String> paymentMethodType;
 
-    @Schema(title = "Card number (required if type = card).")
+    @Schema(title = "Card number (required if type = `card`)")
     private Property<String> cardNumber;
 
-    @Schema(title = "Card expiration month.")
+    @Schema(title = "Card expiration month")
     private Property<Long> expMonth;
 
-    @Schema(title = "Card expiration year.")
+    @Schema(title = "Card expiration year")
     private Property<Long> expYear;
 
-    @Schema(title = "Card CVC.")
+    @Schema(title = "Card CVC")
     private Property<String> cvc;
 
     @Override
@@ -111,13 +111,13 @@ public class CreateMethod extends AbstractStripe implements RunnableTask<CreateM
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the created PaymentMethod.")
+        @Schema(title = "The created PaymentMethod ID")
         private final String paymentMethodId;
 
-        @Schema(title = "The type of the PaymentMethod (e.g. `card`).")
+        @Schema(title = "The PaymentMethod type (e.g., `card`)")
         private final String type;
 
-        @Schema(title = "The raw PaymentMethod object.")
+        @Schema(title = "The raw PaymentMethod object")
         private final Map<String, Object> rawResponse;
     }
 }

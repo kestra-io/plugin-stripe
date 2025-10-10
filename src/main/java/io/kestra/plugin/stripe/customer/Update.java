@@ -53,17 +53,17 @@ import java.util.stream.Collectors;
 )
 public class Update extends AbstractStripe implements RunnableTask<Update.Output> {
 
-    @Schema(title = "The ID of the customer to update.", required = true)
+    @Schema(title = "The customer ID to update", required = true)
     @NotNull
     private Property<String> customerId;
 
-    @Schema(title = "The customer's name.")
+    @Schema(title = "Customer name")
     private Property<String> name;
 
-    @Schema(title = "The customer's email address.")
+    @Schema(title = "Customer email address")
     private Property<String> email;
 
-    @Schema(title = "Key-value pairs for storing additional information.")
+    @Schema(title = "Key-value pairs for storing additional information")
     private Property<Map<String, Object>> metadata;
 
     @Override
@@ -114,10 +114,10 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the updated customer.")
+        @Schema(title = "The updated customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map.")
+        @Schema(title = "The full customer object as a map")
         private final Map<String, Object> customerData;
     }
 }
