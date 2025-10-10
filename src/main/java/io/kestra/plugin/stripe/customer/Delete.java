@@ -45,7 +45,7 @@ import lombok.experimental.SuperBuilder;
 )
 public class Delete extends AbstractStripe implements RunnableTask<Delete.Output> {
 
-    @Schema(title = "The ID of the customer to delete.", required = true)
+    @Schema(title = "The customer ID to delete.", required = true)
     @NotNull
     private Property<String> customerId;
 
@@ -77,13 +77,13 @@ public class Delete extends AbstractStripe implements RunnableTask<Delete.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the deleted customer.")
+        @Schema(title = "The deleted customer ID")
         private final String customerId;
 
-        @Schema(title = "Whether the customer has been deleted (true if soft-deleted).")
+        @Schema(title = "Whether the customer has been deleted (true if soft-deleted)")
         private final Boolean deleted;
 
-        @Schema(title = "The full customer object as a map.")
+        @Schema(title = "The full customer object as a map")
         private final Map<String, Object> customerData;
     }
 }

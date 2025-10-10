@@ -21,7 +21,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Retrieve your Stripe account balance",
+    title = "Retrieve your Stripe account balance.",
     description = "This task retrieves the current balance of your Stripe account."
 )
 @Plugin(
@@ -77,13 +77,13 @@ public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Ou
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "List of available balances in different currencies.")
+        @Schema(title = "List of available balances in different currencies")
         private List<Map<String, Object>> available;
 
-        @Schema(title = "List of pending balances in different currencies.")
+        @Schema(title = "List of pending balances in different currencies")
         private List<Map<String, Object>> pending;
 
-        @Schema(title = "The raw JSON response from Stripe as a Map.")
+        @Schema(title = "The raw JSON response from Stripe as a Map")
         private Map<String, Object> raw;
     }
 }

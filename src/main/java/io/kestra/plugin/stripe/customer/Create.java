@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
     title = "Create a new customer in Stripe.",
     description = "This task creates a customer in Stripe with optional name, email, and metadata. " +
         "⚠️ By default only the customerId is returned in the output. " +
-        "If includeFullCustomerData is set to true, the full customer object will be included, " +
+        "If `includeFullCustomerData` is set to true, the full customer object will be included, " +
         "which may contain personal data (PII)."
 )
 @Plugin(
@@ -56,19 +56,19 @@ import java.util.stream.Collectors;
 )
 public class Create extends AbstractStripe implements RunnableTask<Create.Output> {
 
-    @Schema(title = "The customer's name.")
+    @Schema(title = "Customer name")
     @NotNull
     private Property<String> name;
 
-    @Schema(title = "The customer's email address.")
+    @Schema(title = "Customer email address")
     @NotNull
     private Property<String> email;
 
-    @Schema(title = "Key-value pairs for storing additional information.")
+    @Schema(title = "Key-value pairs for storing additional information")
     private Property<Map<String, Object>> metadata;
 
     @Schema(
-        title = "Whether to include full customer object in output.",
+        title = "Whether to include full customer object in output",
         description = "⚠️ May contain personal data (PII). Use only if necessary."
     )
     @Builder.Default
@@ -124,10 +124,10 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The ID of the created customer.")
+        @Schema(title = "The created customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map (only if includeFullCustomerData = true).")
+        @Schema(title = "The full customer object as a map (only if includeFullCustomerData = true)")
         private final Map<String, Object> customerData;
     }
 }

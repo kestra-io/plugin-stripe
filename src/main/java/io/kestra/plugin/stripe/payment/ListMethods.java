@@ -24,7 +24,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List all PaymentMethods for a Customer",
+    title = "List all PaymentMethods for a customer.",
     description = "This task retrieves all PaymentMethods (cards, bank accounts, etc.) attached to a given Stripe Customer."
 )
 @Plugin(
@@ -48,11 +48,11 @@ import java.util.List;
 )
 public class ListMethods extends AbstractStripe implements RunnableTask<ListMethods.Output> {
 
-    @Schema(title = "ID of the customer")
+    @Schema(title = "Customer ID")
     @NotNull
     private Property<String> customerId;
 
-    @Schema(title = "Type of PaymentMethods to list (card, sepa_debit, etc.)")
+    @Schema(title = "PaymentMethod types to list (card, sepa_debit, etc.)")
     @NotNull
     private Property<String> paymentMethodType;
 
