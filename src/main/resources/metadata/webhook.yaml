@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe.webhook
+name: "webhook"
+title: "Webhook"
+description: ""
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
