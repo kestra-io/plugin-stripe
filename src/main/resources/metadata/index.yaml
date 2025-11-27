@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe
+name: "stripe"
+title: "Stripe"
+description: "This sub-group of plugins contains tasks for interacting with Stripe."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
