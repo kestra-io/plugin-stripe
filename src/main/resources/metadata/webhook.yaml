@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe.webhook
+name: "webhook"
+title: "Stripe Webhook"
+description: "This sub-group of plugins contains tasks to handle and process Stripe Webhook events."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

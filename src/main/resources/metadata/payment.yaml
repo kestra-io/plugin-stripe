@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe.payment
+name: "payment"
+title: "Stripe Payment"
+description: "This sub-group of plugins contains tasks to interact with Stripe Payments."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
