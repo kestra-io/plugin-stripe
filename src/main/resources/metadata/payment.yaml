@@ -1,8 +1,8 @@
 group: io.kestra.plugin.stripe.payment
 name: "payment"
 title: "Stripe Payment"
-description: "This sub-group of plugins contains tasks to interact with Stripe Payments."
-body: ""
+description: "Tasks that create and manage Stripe payments or charges."
+body: "Set your Stripe API key with amounts, currency, customer/payment method IDs, and optional metadata to create charges or payment intents and retrieve their status for order workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"
