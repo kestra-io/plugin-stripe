@@ -1,8 +1,8 @@
 group: io.kestra.plugin.stripe
 name: "stripe"
 title: "Stripe"
-description: "This sub-group of plugins contains tasks for interacting with Stripe."
-body: ""
+description: "Tasks that interact with Stripe customers, payments, balances, and webhooks."
+body: "Provide your Stripe API key and relevant IDs to create or retrieve customers, charge or refund payments, check balances, and process webhook events using signing secrets for secure automation."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"

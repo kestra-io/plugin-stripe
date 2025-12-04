@@ -1,8 +1,8 @@
 group: io.kestra.plugin.stripe.balance
 name: "balance"
 title: "Stripe Balance"
-description: "This sub-group of plugins contains tasks to interact with Stripe Balances."
-body: ""
+description: "Tasks that fetch Stripe balances and payouts."
+body: "Set your Stripe API key to retrieve current balance and payout details, returning amounts by currency for finance workflows."
 videos: []
 createdBy: "Kestra Core Team"
 managedBy: "Kestra Core Team"
