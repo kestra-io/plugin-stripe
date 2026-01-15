@@ -43,6 +43,11 @@ import java.util.Map;
                     payload: "{{ trigger.payload }}"
                     signatureHeader: "{{ trigger.headers['Stripe-Signature'] }}"
                     endpointSecret: "{{ secret('STRIPE_WEBHOOK_SECRET') }}"
+
+                triggers:
+                  - id: webhook
+                    type: io.kestra.plugin.core.trigger.Webhook
+                    key: 4wjtkzwVGBM9yKnjm3yv8r
                 """
         )
     }

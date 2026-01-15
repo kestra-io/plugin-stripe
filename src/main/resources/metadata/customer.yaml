@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe.customer
+name: "customer"
+title: "Stripe Customer"
+description: "Tasks that create, update, and fetch Stripe customers."
+body: "Provide your Stripe API key with customer attributes (email, name, metadata) to upsert customers and retrieve details for billing flows."
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"

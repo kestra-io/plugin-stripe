@@ -1,0 +1,8 @@
+group: io.kestra.plugin.stripe.webhook
+name: "webhook"
+title: "Stripe Webhook"
+description: "Tasks that process Stripe webhook events."
+body: "Configure the webhook signing secret to validate incoming Stripe events, parse payloads, and trigger workflows with event data such as payment updates or subscription changes."
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
