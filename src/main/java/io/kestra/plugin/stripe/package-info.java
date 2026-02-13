@@ -1,6 +1,7 @@
 @PluginSubGroup(
-    description = "This sub-group of plugins contains tasks for interacting with Stripe.",
-    categories = PluginSubGroup.PluginCategory.TOOL
+    description = "This sub-group of plugins contains tasks for interacting with Stripe.",categories = {
+        PluginSubGroup.PluginCategory.BUSINESS
+    }
 )
 package io.kestra.plugin.stripe;
 
