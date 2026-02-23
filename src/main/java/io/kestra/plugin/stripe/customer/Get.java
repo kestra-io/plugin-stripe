@@ -23,8 +23,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Retrieve a customer from Stripe by ID.",
-    description = "This task fetches a Stripe customer object by its ID using the Stripe Java SDK."
+    title = "Fetch Stripe customer by ID",
+    description = "Retrieves a customer object by ID using the provided secret key and returns the raw Stripe payload."
 )
 @Plugin(
     examples = {
@@ -46,7 +46,7 @@ import java.util.Map;
 )
 public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
 
-    @Schema(title = "The customer ID to retrieve", required = true)
+    @Schema(title = "Customer ID to retrieve", required = true)
     @NotNull
     private Property<String> customerId;
 
@@ -78,10 +78,10 @@ public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The retrieved customer ID")
+        @Schema(title = "Retrieved customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map")
+        @Schema(title = "Raw customer payload", description = "Stripe customer object converted to a map")
         private final Map<String, Object> customerData;
     }
 }

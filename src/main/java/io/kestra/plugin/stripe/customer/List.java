@@ -25,8 +25,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List Stripe customers with optional filters and pagination.",
-    description = "This task lists Stripe customers using the Stripe Java SDK. Supports optional limit and filters."
+    title = "List Stripe customers",
+    description = "Lists customers with optional email filter and limit. Uses the provided secret key; outputs raw customer maps for further filtering."
 )
 @Plugin(
     examples = {
@@ -48,12 +48,12 @@ import java.util.Map;
 )
 public class List extends AbstractStripe implements RunnableTask<List.Output> {
 
-    @Schema(title = "Maximum number of customers to return", description = "Defaults to 10")
+    @Schema(title = "Maximum customers to return", description = "Defaults to 10; Stripe caps apply")
     @Min(1)
     @Builder.Default
     private Property<Integer> limit = Property.ofValue(10);
 
-    @Schema(title = "Optional filter for email")
+    @Schema(title = "Email filter", description = "If set, returns customers whose email matches the value")
     private Property<String> email;
 
     @Override
@@ -96,10 +96,10 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "List of customer objects")
+        @Schema(title = "Customer objects", description = "Each entry is the raw Stripe customer converted to a map")
         private final java.util.List<Map<String, Object>> customers;
 
-        @Schema(title = "Number of customers returned")
+        @Schema(title = "Returned count")
         private final Integer totalCount;
     }
 }

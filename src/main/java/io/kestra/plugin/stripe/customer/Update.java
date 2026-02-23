@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Update an existing customer in Stripe.",
-    description = "This task modifies a customer in Stripe with optional fields like name, email, and metadata."
+    title = "Update a Stripe customer",
+    description = "Updates a customer by ID with optional name, email, and metadata. Metadata values are stringified before sending."
 )
 @Plugin(
     examples = {
@@ -53,17 +53,17 @@ import java.util.stream.Collectors;
 )
 public class Update extends AbstractStripe implements RunnableTask<Update.Output> {
 
-    @Schema(title = "The customer ID to update", required = true)
+    @Schema(title = "Customer ID to update", required = true)
     @NotNull
     private Property<String> customerId;
 
-    @Schema(title = "Customer name")
+    @Schema(title = "Customer name", description = "New full name to store on the customer")
     private Property<String> name;
 
-    @Schema(title = "Customer email address")
+    @Schema(title = "Customer email address", description = "New email; useful for receipts and lookup")
     private Property<String> email;
 
-    @Schema(title = "Key-value pairs for storing additional information")
+    @Schema(title = "Customer metadata", description = "Key-value pairs converted to strings before update")
     private Property<Map<String, Object>> metadata;
 
     @Override
@@ -114,10 +114,10 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The updated customer ID")
+        @Schema(title = "Updated customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map")
+        @Schema(title = "Raw customer payload", description = "Stripe customer object after update as a map")
         private final Map<String, Object> customerData;
     }
 }

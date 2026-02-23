@@ -24,8 +24,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List all PaymentMethods for a customer.",
-    description = "This task retrieves all PaymentMethods (cards, bank accounts, etc.) attached to a given Stripe Customer."
+    title = "List customer PaymentMethods",
+    description = "Retrieves all PaymentMethods of a given type for a customer. Uses the provided secret key; returns IDs plus raw JSON payload."
 )
 @Plugin(
     examples = {
@@ -52,7 +52,7 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
     @NotNull
     private Property<String> customerId;
 
-    @Schema(title = "PaymentMethod types to list (card, sepa_debit, etc.)")
+    @Schema(title = "PaymentMethod type", description = "Type filter such as `card` or `sepa_debit`")
     @NotNull
     private Property<String> paymentMethodType;
 
@@ -97,10 +97,10 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
         @Schema(title = "Customer ID")
         private final String customerId;
 
-        @Schema(title = "List of PaymentMethod IDs")
+        @Schema(title = "PaymentMethod IDs")
         private final List<String> paymentMethodIds;
 
-        @Schema(title = "Raw JSON returned by Stripe")
+        @Schema(title = "Raw Stripe response")
         private final String raw;
     }
 }

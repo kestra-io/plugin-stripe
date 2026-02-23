@@ -26,11 +26,8 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Create a new customer in Stripe.",
-    description = "This task creates a customer in Stripe with optional name, email, and metadata. " +
-        "⚠️ By default only the customerId is returned in the output. " +
-        "If `includeFullCustomerData` is set to true, the full customer object will be included, " +
-        "which may contain personal data (PII)."
+    title = "Create Stripe customer record",
+    description = "Creates a Stripe customer with provided name, email, and metadata. By default only `customerId` is returned; set `includeFullCustomerData` to true to include the full Stripe payload (may contain PII)."
 )
 @Plugin(
     examples = {
@@ -56,20 +53,20 @@ import java.util.stream.Collectors;
 )
 public class Create extends AbstractStripe implements RunnableTask<Create.Output> {
 
-    @Schema(title = "Customer name")
+    @Schema(title = "Customer name", description = "Full name stored on the Stripe customer; required")
     @NotNull
     private Property<String> name;
 
-    @Schema(title = "Customer email address")
+    @Schema(title = "Customer email address", description = "Email saved on the customer and used for receipts; required")
     @NotNull
     private Property<String> email;
 
-    @Schema(title = "Key-value pairs for storing additional information")
+    @Schema(title = "Customer metadata", description = "Key-value pairs converted to strings before sending to Stripe")
     private Property<Map<String, Object>> metadata;
 
     @Schema(
-        title = "Whether to include full customer object in output",
-        description = "⚠️ May contain personal data (PII). Use only if necessary."
+        title = "Include full customer payload",
+        description = "Defaults to false to avoid returning PII; when true, adds the complete Stripe customer object to the output"
     )
     @Builder.Default
     private Property<Boolean> includeFullCustomerData = Property.of(false);
@@ -124,10 +121,10 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The created customer ID")
+        @Schema(title = "Created customer ID")
         private final String customerId;
 
-        @Schema(title = "The full customer object as a map (only if includeFullCustomerData = true)")
+        @Schema(title = "Full customer payload", description = "Stripe customer object as a map; present only when `includeFullCustomerData` is true")
         private final Map<String, Object> customerData;
     }
 }
