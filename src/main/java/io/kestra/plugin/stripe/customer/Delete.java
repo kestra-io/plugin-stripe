@@ -22,8 +22,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Delete or deactivate a customer in Stripe.",
-    description = "This task deletes (soft-deletes) a customer in Stripe using the Stripe Java SDK."
+    title = "Delete a Stripe customer",
+    description = "Soft-deletes a Stripe customer by ID. Stripe retains the record but marks it deleted; output includes the deleted flag and raw payload."
 )
 @Plugin(
     examples = {
@@ -45,7 +45,7 @@ import lombok.experimental.SuperBuilder;
 )
 public class Delete extends AbstractStripe implements RunnableTask<Delete.Output> {
 
-    @Schema(title = "The customer ID to delete.", required = true)
+    @Schema(title = "Customer ID to delete", required = true, description = "Target customer identifier; operation is a Stripe soft delete")
     @NotNull
     private Property<String> customerId;
 
@@ -77,13 +77,13 @@ public class Delete extends AbstractStripe implements RunnableTask<Delete.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The deleted customer ID")
+        @Schema(title = "Deleted customer ID")
         private final String customerId;
 
-        @Schema(title = "Whether the customer has been deleted (true if soft-deleted)")
+        @Schema(title = "Soft delete flag", description = "True when Stripe marks the customer as deleted")
         private final Boolean deleted;
 
-        @Schema(title = "The full customer object as a map")
+        @Schema(title = "Raw customer payload", description = "Full customer object returned by Stripe after deletion")
         private final Map<String, Object> customerData;
     }
 }

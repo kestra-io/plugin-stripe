@@ -24,8 +24,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Handle Stripe Webhook Events.",
-    description = "This task receives a Stripe webhook payload, validates the signature, and outputs the parsed event."
+    title = "Validate and parse Stripe webhooks",
+    description = "Validates Stripe webhook signatures with the endpoint secret, then returns the event id/type plus the deserialized data map. Fails fast on signature mismatch; provide the raw request body and the `Stripe-Signature` header as received."
 )
 @Plugin(
     examples = {
@@ -54,15 +54,15 @@ import java.util.Map;
 )
 public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEvent.Output> {
 
-    @Schema(title = "Raw webhook payload from Stripe")
+    @Schema(title = "Webhook payload body", description = "Raw JSON request body from Stripe; must be unmodified for signature verification")
     @NotNull
     private Property<String> payload;
 
-    @Schema(title = "Stripe-Signature header")
+    @Schema(title = "Stripe-Signature header value", description = "Exact `Stripe-Signature` header from the incoming request")
     @NotNull
     private Property<String> signatureHeader;
 
-    @Schema(title = "Endpoint secret configured in Stripe for webhook validation")
+    @Schema(title = "Webhook endpoint secret", description = "Signing secret configured on the Stripe webhook endpoint; required for signature validation")
     @NotNull
     private Property<String> endpointSecret;
 
@@ -96,13 +96,13 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
         @Schema(title = "Stripe event ID")
         private final String id;
 
-        @Schema(title = "Stripe event Type")
+        @Schema(title = "Stripe event type", description = "Event type string such as `charge.succeeded`")
         private final String type;
 
-        @Schema(title = "Event data object")
+        @Schema(title = "Event data payload", description = "Deserialized object map from `event.data.object`")
         private final Map<String, Object> data;
 
-        @Schema(title = "Raw payload of the webhook")
+        @Schema(title = "Raw webhook payload", description = "Original payload body returned for downstream auditing")
         private final String raw;
     }
 }

@@ -20,8 +20,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Confirm a PaymentIntent in Stripe.",
-    description = "This task confirms a PaymentIntent to process a payment."
+    title = "Confirm a Stripe PaymentIntent",
+    description = "Confirms a PaymentIntent by ID, optionally specifying a PaymentMethod and return URL for redirect flows. Uses the secret key context."
 )
 @Plugin(
     examples = {
@@ -43,14 +43,14 @@ import lombok.experimental.SuperBuilder;
 )
 public class ConfirmIntent extends AbstractStripe implements RunnableTask<ConfirmIntent.Output> {
 
-    @Schema(title = "The PaymentIntent ID to confirm")
+    @Schema(title = "PaymentIntent ID to confirm")
     @NotNull
     private Property<String> paymentIntentId;
 
-    @Schema(title = "Optional payment method ID to use for confirmation")
+    @Schema(title = "PaymentMethod ID", description = "Optional PaymentMethod to use when confirming")
     private Property<String> paymentMethod;
 
-    @Schema(title = "Optional return URL for redirect-based payment methods")
+    @Schema(title = "Return URL", description = "Optional redirect URL for SCA/redirect flows")
     private Property<String> returnUrl;
 
     @Override
@@ -96,13 +96,13 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The confirmed PaymentIntent ID")
+        @Schema(title = "Confirmed PaymentIntent ID")
         private final String paymentIntentId;
 
-        @Schema(title = "The PaymentIntent status")
+        @Schema(title = "PaymentIntent status")
         private final String status;
 
-        @Schema(title = "The raw JSON response from Stripe")
+        @Schema(title = "Raw Stripe response")
         private final String raw;
     }
 }

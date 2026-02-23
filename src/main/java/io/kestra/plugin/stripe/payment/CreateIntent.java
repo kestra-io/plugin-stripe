@@ -23,8 +23,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Create a PaymentIntent in Stripe.",
-    description = "This task creates a PaymentIntent with amount, currency, and optional customer."
+    title = "Create a Stripe PaymentIntent",
+    description = "Creates a PaymentIntent with required amount and currency in the smallest unit; can associate an existing customer. Uses the secret key context."
 )
 @Plugin(
     examples = {
@@ -49,19 +49,19 @@ import java.util.Map;
 public class CreateIntent extends AbstractStripe implements RunnableTask<CreateIntent.Output> {
     @NotNull
     @Schema(
-        title = "Amount intended to be collected by this PaymentIntent (in the smallest currency unit)"
+        title = "Amount to collect", description = "Amount in the smallest currency unit (for USD, cents)"
     )
     private Property<Long> amount;
 
     @NotNull
     @Schema(
-        title = "Three-letter ISO currency code, in lowercase (e.g. `usd`, `inr`)"
+        title = "Currency code", description = "Lowercase ISO-4217 code such as `usd` or `inr`"
     )
     private Property<String> currency;
 
     @NotNull
     @Schema(
-        title = "Existing customer ID to associate with this PaymentIntent"
+        title = "Customer ID", description = "Existing customer to associate with the PaymentIntent"
     )
     private Property<String> customer;
 
@@ -102,13 +102,13 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The created PaymentIntent ID")
+        @Schema(title = "Created PaymentIntent ID")
         private final String paymentIntentId;
 
-        @Schema(title = "The PaymentIntent status")
+        @Schema(title = "PaymentIntent status")
         private final String status;
 
-        @Schema(title = "The raw PaymentIntent object")
+        @Schema(title = "Raw PaymentIntent payload", description = "Full PaymentIntent object converted to a map")
         private final Map<String, Object> rawResponse;
     }
 }

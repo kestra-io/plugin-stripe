@@ -18,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Refund a payment in Stripe.",
-    description = "Issue a full or partial refund for a payment using Stripe."
+    title = "Create a Stripe refund",
+    description = "Issues a full or partial refund for a charge or PaymentIntent. Requires either `chargeId` or `paymentIntentId`; amount defaults to full if omitted."
 )
 @Plugin(
     examples = {
@@ -46,7 +46,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: refund_partial
-                    type: io.kestra.plugin.stripe.payment.RefundPayment
+                    type: io.kestra.plugin.stripe.payment.Refund
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     paymentIntentId: "pi_123456789"
                     amount: 500  # amount in cents
@@ -56,17 +56,20 @@ import lombok.experimental.SuperBuilder;
 )
 public class Refund extends AbstractStripe implements RunnableTask<Refund.Output> {
     @Schema(
-        title = "The charge ID to refund. Either `chargeId` or `paymentIntentId` must be provided."
+        title = "Charge ID",
+        description = "Charge to refund; provide this or `paymentIntentId`"
     )
     private Property<String> chargeId;
 
     @Schema(
-        title = "The PaymentIntent ID to refund. Either `chargeId` or `paymentIntentId` must be provided."
+        title = "PaymentIntent ID",
+        description = "PaymentIntent to refund; provide this or `chargeId`"
     )
     private Property<String> paymentIntentId;
 
     @Schema(
-        title = "The amount to refund in cents (optional). If not set, a full refund is issued."
+        title = "Refund amount",
+        description = "Amount in the smallest currency unit; defaults to full refund when null"
     )
     private Property<Long> amount;
 
@@ -111,19 +114,19 @@ public class Refund extends AbstractStripe implements RunnableTask<Refund.Output
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The refund ID")
+        @Schema(title = "Refund ID")
         private final String refundId;
 
-        @Schema(title = "The refund status")
+        @Schema(title = "Refund status")
         private final String status;
 
-        @Schema(title = "The refunded amount in cents")
+        @Schema(title = "Refunded amount", description = "Amount in the smallest currency unit")
         private final Long amount;
 
-        @Schema(title = "The refund currency")
+        @Schema(title = "Refund currency")
         private final String currency;
 
-        @Schema(title = "The raw JSON response from Stripe")
+        @Schema(title = "Raw Stripe response")
         private final String raw;
     }
 }

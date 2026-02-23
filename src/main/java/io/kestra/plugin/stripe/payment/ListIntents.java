@@ -28,8 +28,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List recent PaymentIntents.",
-    description = "Retrieve a list of recent payment intents from Stripe with optional filters."
+    title = "List Stripe PaymentIntents",
+    description = "Lists PaymentIntents with optional limit and customer filter using the secret key context. Returns raw intent payloads for further processing."
 )
 @Plugin(
     examples = {
@@ -52,10 +52,10 @@ import java.util.Map;
 )
 public class ListIntents extends AbstractStripe implements RunnableTask<ListIntents.Output> {
 
-    @Schema(title = "Maximum number of PaymentIntents to retrieve")
+    @Schema(title = "Maximum PaymentIntents", description = "Optional limit; Stripe defaults apply when unset")
     private Property<Long> limit;
 
-    @Schema(title = "Optional Customer ID to filter PaymentIntents")
+    @Schema(title = "Customer filter", description = "Optional customer ID to filter results")
     private Property<String> customer;
 
     @Override
@@ -97,10 +97,10 @@ public class ListIntents extends AbstractStripe implements RunnableTask<ListInte
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Number of payment intents returned")
+        @Schema(title = "Returned count")
         private final int count;
 
-        @Schema(title = "List of payment intents as raw JSON maps")
+        @Schema(title = "PaymentIntents payloads", description = "Each entry is a PaymentIntent converted to a map")
         private final List<Map<String, Object>> paymentIntents;
     }
 }

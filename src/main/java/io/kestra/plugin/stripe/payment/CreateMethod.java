@@ -23,8 +23,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Create a PaymentMethod in Stripe.",
-    description = "This task creates a PaymentMethod, typically with card details."
+    title = "Create a Stripe PaymentMethod",
+    description = "Creates a PaymentMethod of the given type (e.g., card). For cards, number, expiry, and CVC must be provided."
 )
 @Plugin(
     examples = {
@@ -41,7 +41,8 @@ import java.util.Map;
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     type: "card"
                     cardNumber: "{{ secret('CREDIT_CARD_NUMBER') }}"
-                    expirationDate: "{{ secret('CREDIT_CARD_EXPIRATION') }}"
+                    expMonth: 12
+                    expYear: 2030
                     cvc: "123"
                 """
         )
@@ -49,19 +50,19 @@ import java.util.Map;
 )
 public class CreateMethod extends AbstractStripe implements RunnableTask<CreateMethod.Output> {
     @NotNull
-    @Schema(title = "The PaymentMethod type – e.g., `card`")
+    @Schema(title = "PaymentMethod type", description = "Type enum such as `card`; controls required fields")
     private Property<String> paymentMethodType;
 
-    @Schema(title = "Card number (required if type = `card`)")
+    @Schema(title = "Card number", description = "Required when type is `card`")
     private Property<String> cardNumber;
 
-    @Schema(title = "Card expiration month")
+    @Schema(title = "Expiration month", description = "Required when type is `card`")
     private Property<Long> expMonth;
 
-    @Schema(title = "Card expiration year")
+    @Schema(title = "Expiration year", description = "Required when type is `card`")
     private Property<Long> expYear;
 
-    @Schema(title = "Card CVC")
+    @Schema(title = "Card CVC", description = "Optional but recommended when type is `card`")
     private Property<String> cvc;
 
     @Override
@@ -111,13 +112,13 @@ public class CreateMethod extends AbstractStripe implements RunnableTask<CreateM
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "The created PaymentMethod ID")
+        @Schema(title = "Created PaymentMethod ID")
         private final String paymentMethodId;
 
-        @Schema(title = "The PaymentMethod type (e.g., `card`)")
+        @Schema(title = "PaymentMethod type")
         private final String type;
 
-        @Schema(title = "The raw PaymentMethod object")
+        @Schema(title = "Raw PaymentMethod payload", description = "Full PaymentMethod object converted to a map")
         private final Map<String, Object> rawResponse;
     }
 }
