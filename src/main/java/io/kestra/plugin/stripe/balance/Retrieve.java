@@ -1,19 +1,21 @@
 package io.kestra.plugin.stripe.balance;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.Balance;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -49,20 +51,25 @@ public class Retrieve extends AbstractStripe implements RunnableTask<Retrieve.Ou
 
         // Parse raw JSON into Map
         String rawJson = balance.getLastResponse().body();
-        Map<String, Object> rawData = JacksonMapper.ofJson().readValue(rawJson, new TypeReference<>() {});
+        Map<String, Object> rawData = JacksonMapper.ofJson().readValue(rawJson, new TypeReference<>() {
+        });
 
         List<Map<String, Object>> available = balance.getAvailable().stream()
-            .map(money -> Map.<String, Object>of(
-                "currency", money.getCurrency(),
-                "amount", money.getAmount()
-            ))
+            .map(
+                money -> Map.<String, Object> of(
+                    "currency", money.getCurrency(),
+                    "amount", money.getAmount()
+                )
+            )
             .toList();
 
         List<Map<String, Object>> pending = balance.getPending().stream()
-            .map(money -> Map.<String, Object>of(
-                "currency", money.getCurrency(),
-                "amount", money.getAmount()
-            ))
+            .map(
+                money -> Map.<String, Object> of(
+                    "currency", money.getCurrency(),
+                    "amount", money.getAmount()
+                )
+            )
             .toList();
 
         return Output.builder()

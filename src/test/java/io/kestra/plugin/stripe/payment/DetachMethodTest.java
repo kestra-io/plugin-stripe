@@ -1,15 +1,17 @@
 package io.kestra.plugin.stripe.payment;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +40,7 @@ class DetachMethodTest extends AbstractStripeTest {
         // After detachment, customer should be null
         assertNull(output.getCustomer());
         assertNotNull(output.getType());
-        assertNotNull(output.getRawResponse());  // ✅ use getRawResponse()
+        assertNotNull(output.getRawResponse()); // ✅ use getRawResponse()
 
         System.out.println("Detached PaymentMethod ID: " + output.getId());
     }

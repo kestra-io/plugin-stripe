@@ -1,20 +1,22 @@
 package io.kestra.plugin.stripe.payment;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.PaymentMethod;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -61,7 +63,8 @@ public class DetachMethod extends AbstractStripe implements RunnableTask<DetachM
         // Convert to Map
         Map<String, Object> detachedMap = JacksonMapper.ofJson().readValue(
             detached.toJson(),
-            new TypeReference<>() {}
+            new TypeReference<>() {
+            }
         );
 
         return Output.builder()

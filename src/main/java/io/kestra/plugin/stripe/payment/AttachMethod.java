@@ -1,22 +1,24 @@
 package io.kestra.plugin.stripe.payment;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
 import com.stripe.param.PaymentMethodAttachParams;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -81,7 +83,8 @@ public class AttachMethod extends AbstractStripe implements RunnableTask<AttachM
 
         // Convert Stripe PaymentMethod JSON to Map<String,Object>
         String json = attached.getLastResponse().body();
-        Map<String, Object> paymentMethodData = JacksonMapper.ofJson().readValue(json, new TypeReference<>() {});
+        Map<String, Object> paymentMethodData = JacksonMapper.ofJson().readValue(json, new TypeReference<>() {
+        });
 
         return Output.builder()
             .paymentMethodId(attached.getId())

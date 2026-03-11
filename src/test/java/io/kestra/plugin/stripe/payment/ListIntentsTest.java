@@ -1,15 +1,17 @@
 package io.kestra.plugin.stripe.payment;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,8 +29,8 @@ class ListIntentsTest extends AbstractStripeTest {
     void listPaymentIntents() throws Exception {
         // Wrap all Property fields
         ListIntents task = ListIntents.builder()
-            .apiKey(Property.ofValue(getApiKey()))   // ✅ wrap in Property
-            .limit(Property.ofValue(3L))             // ✅ wrap in Property
+            .apiKey(Property.ofValue(getApiKey())) // ✅ wrap in Property
+            .limit(Property.ofValue(3L)) // ✅ wrap in Property
             .build();
 
         RunContext runContext = runContextFactory.of(Map.of());

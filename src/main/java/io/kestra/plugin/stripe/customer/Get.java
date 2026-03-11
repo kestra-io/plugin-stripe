@@ -1,21 +1,23 @@
 package io.kestra.plugin.stripe.customer;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
-import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.runners.RunContext;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -67,7 +69,8 @@ public class Get extends AbstractStripe implements RunnableTask<Get.Output> {
         // Convert Stripe customer JSON to Map<String,Object>
         String json = customer.getLastResponse().body();
         Map<String, Object> customerData = JacksonMapper.ofJson()
-            .readValue(json, new TypeReference<>() {});
+            .readValue(json, new TypeReference<>() {
+            });
 
         return Output.builder()
             .customerId(customer.getId())

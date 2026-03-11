@@ -1,13 +1,15 @@
 package io.kestra.plugin.stripe.customer;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
+
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -62,7 +64,8 @@ class GetTest extends AbstractStripeTest {
             .customerId(Property.ofValue("cus_invalid123"))
             .build();
 
-        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () ->
+        {
             getTask.run(runContext);
         });
 

@@ -1,24 +1,25 @@
 package io.kestra.plugin.stripe.customer;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.param.CustomerCreateParams;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -85,16 +86,21 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
         // Convert metadata values to String for Stripe
         Map<String, String> metadataForStripe = rMetadata.entrySet()
             .stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue() == null ? "" : e.getValue().toString()
-            ));
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue() == null ? "" : e.getValue().toString()
+                )
+            );
 
         // Build customer create params
         CustomerCreateParams.Builder builder = CustomerCreateParams.builder();
-        if (rName != null) builder.setName(rName);
-        if (rEmail != null) builder.setEmail(rEmail);
-        if (!metadataForStripe.isEmpty()) builder.putAllMetadata(metadataForStripe);
+        if (rName != null)
+            builder.setName(rName);
+        if (rEmail != null)
+            builder.setEmail(rEmail);
+        if (!metadataForStripe.isEmpty())
+            builder.putAllMetadata(metadataForStripe);
 
         Customer customer;
         try {
@@ -111,7 +117,8 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
         boolean includeFull = runContext.render(this.includeFullCustomerData).as(Boolean.class).orElse(false);
         if (includeFull) {
             String json = customer.getLastResponse().body();
-            Map<String, Object> customerData = JacksonMapper.ofJson().readValue(json, new TypeReference<>() {});
+            Map<String, Object> customerData = JacksonMapper.ofJson().readValue(json, new TypeReference<>() {
+            });
             output.customerData(customerData);
         }
 

@@ -1,26 +1,28 @@
 package io.kestra.plugin.stripe.payment;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentListParams;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -83,7 +85,8 @@ public class ListIntents extends AbstractStripe implements RunnableTask<ListInte
         for (PaymentIntent pi : paymentIntents) {
             Map<String, Object> piMap = JacksonMapper.ofJson().readValue(
                 pi.toJson(),
-                new TypeReference<Map<String, Object>>() {}
+                new TypeReference<Map<String, Object>>() {
+                }
             );
             results.add(piMap);
         }

@@ -1,12 +1,13 @@
 package io.kestra.plugin.stripe.payment;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
 import jakarta.inject.Inject;
 
@@ -29,7 +30,7 @@ class ConfirmIntentTest extends AbstractStripeTest {
 
         // ⚠️ Requires a valid PaymentIntent ID from your Stripe test account
         ConfirmIntent task = ConfirmIntent.builder()
-            .apiKey(Property.ofValue(getApiKey()))        // ✅ Wrap in Property.ofValue
+            .apiKey(Property.ofValue(getApiKey())) // ✅ Wrap in Property.ofValue
             .paymentIntentId(Property.ofValue("pi_test_123")) // ✅ Also wrap
             .build();
 

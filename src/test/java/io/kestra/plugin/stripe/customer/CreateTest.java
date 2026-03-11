@@ -1,15 +1,17 @@
 package io.kestra.plugin.stripe.customer;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.stripe.AbstractStripeTest;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -32,10 +34,14 @@ class CreateTest extends AbstractStripeTest {
             .apiKey(Property.ofValue(getApiKey()))
             .name(Property.ofValue("Test User"))
             .email(Property.ofValue("testuser@example.com"))
-            .metadata(Property.ofValue(Map.of(
-                "plan", "pro",
-                "signup_source", "landing_page"
-            )))
+            .metadata(
+                Property.ofValue(
+                    Map.of(
+                        "plan", "pro",
+                        "signup_source", "landing_page"
+                    )
+                )
+            )
             .build();
 
         Create.Output output = task.run(runContext);

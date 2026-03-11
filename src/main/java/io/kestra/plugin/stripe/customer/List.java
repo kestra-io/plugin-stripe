@@ -1,23 +1,25 @@
 package io.kestra.plugin.stripe.customer;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.kestra.core.serializers.JacksonMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.StripeCollection;
 import com.stripe.param.CustomerListParams;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -77,10 +79,12 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
         }
 
         java.util.List<Map<String, Object>> customerList = customers.getData().stream()
-            .map(customer -> {
+            .map(customer ->
+            {
                 try {
                     String json = customer.getLastResponse().body();
-                    return JacksonMapper.ofJson().readValue(json, new TypeReference<Map<String, Object>>() {});
+                    return JacksonMapper.ofJson().readValue(json, new TypeReference<Map<String, Object>>() {
+                    });
                 } catch (Exception ex) {
                     throw new RuntimeException("Failed to parse customer JSON: " + ex.getMessage(), ex);
                 }

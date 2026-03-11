@@ -1,6 +1,5 @@
 package io.kestra.plugin.stripe;
 
-import com.google.common.base.Strings;
 import io.kestra.core.junit.annotations.KestraTest;
 
 @KestraTest
