@@ -69,7 +69,7 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
         description = "Defaults to false to avoid returning PII; when true, adds the complete Stripe customer object to the output"
     )
     @Builder.Default
-    private Property<Boolean> includeFullCustomerData = Property.of(false);
+    private Property<Boolean> includeFullCustomerData = Property.ofValue(false);
 
     @Override
     public Output run(RunContext runContext) throws Exception {
