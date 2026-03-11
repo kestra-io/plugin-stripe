@@ -25,7 +25,7 @@ class RetrieveTest extends AbstractStripeTest {
     @Test
     void run() throws Exception {
         Retrieve task = Retrieve.builder()
-            .apiKey(Property.of(Stripe.apiKey))
+            .apiKey(Property.ofValue(Stripe.apiKey))
             .build();
 
         var runContext = runContextFactory.of();
