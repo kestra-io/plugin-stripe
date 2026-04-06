@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -50,6 +51,7 @@ public class Delete extends AbstractStripe implements RunnableTask<Delete.Output
 
     @Schema(title = "Customer ID to delete", required = true, description = "Target customer identifier; operation is a Stripe soft delete")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> customerId;
 
     @Override

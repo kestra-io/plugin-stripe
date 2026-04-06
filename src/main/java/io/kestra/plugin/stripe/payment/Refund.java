@@ -13,6 +13,7 @@ import io.kestra.plugin.stripe.AbstractStripe;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -61,18 +62,21 @@ public class Refund extends AbstractStripe implements RunnableTask<Refund.Output
         title = "Charge ID",
         description = "Charge to refund; provide this or `paymentIntentId`"
     )
+    @PluginProperty(group = "advanced")
     private Property<String> chargeId;
 
     @Schema(
         title = "PaymentIntent ID",
         description = "PaymentIntent to refund; provide this or `chargeId`"
     )
+    @PluginProperty(group = "advanced")
     private Property<String> paymentIntentId;
 
     @Schema(
         title = "Refund amount",
         description = "Amount in the smallest currency unit; defaults to full refund when null"
     )
+    @PluginProperty(group = "advanced")
     private Property<Long> amount;
 
     @Override

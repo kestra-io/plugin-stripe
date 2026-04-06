@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -56,13 +57,16 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
 
     @Schema(title = "Customer name", description = "Full name stored on the Stripe customer; required")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> name;
 
     @Schema(title = "Customer email address", description = "Email saved on the customer and used for receipts; required")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> email;
 
     @Schema(title = "Customer metadata", description = "Key-value pairs converted to strings before sending to Stripe")
+    @PluginProperty(group = "advanced")
     private Property<Map<String, Object>> metadata;
 
     @Schema(
@@ -70,6 +74,7 @@ public class Create extends AbstractStripe implements RunnableTask<Create.Output
         description = "Defaults to false to avoid returning PII; when true, adds the complete Stripe customer object to the output"
     )
     @Builder.Default
+    @PluginProperty(group = "destination")
     private Property<Boolean> includeFullCustomerData = Property.ofValue(false);
 
     @Override

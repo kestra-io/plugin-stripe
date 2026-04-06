@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -53,9 +54,11 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
     @Schema(title = "Maximum customers to return", description = "Defaults to 10; Stripe caps apply")
     @Min(1)
     @Builder.Default
+    @PluginProperty(group = "processing")
     private Property<Integer> limit = Property.ofValue(10);
 
     @Schema(title = "Email filter", description = "If set, returns customers whose email matches the value")
+    @PluginProperty(group = "advanced")
     private Property<String> email;
 
     @Override

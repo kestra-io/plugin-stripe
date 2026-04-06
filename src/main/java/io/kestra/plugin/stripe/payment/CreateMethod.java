@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -53,18 +54,23 @@ import lombok.experimental.SuperBuilder;
 public class CreateMethod extends AbstractStripe implements RunnableTask<CreateMethod.Output> {
     @NotNull
     @Schema(title = "PaymentMethod type", description = "Type enum such as `card`; controls required fields")
+    @PluginProperty(group = "main")
     private Property<String> paymentMethodType;
 
     @Schema(title = "Card number", description = "Required when type is `card`")
+    @PluginProperty(group = "advanced")
     private Property<String> cardNumber;
 
     @Schema(title = "Expiration month", description = "Required when type is `card`")
+    @PluginProperty(group = "advanced")
     private Property<Long> expMonth;
 
     @Schema(title = "Expiration year", description = "Required when type is `card`")
+    @PluginProperty(group = "advanced")
     private Property<Long> expYear;
 
     @Schema(title = "Card CVC", description = "Optional but recommended when type is `card`")
+    @PluginProperty(group = "advanced")
     private Property<String> cvc;
 
     @Override

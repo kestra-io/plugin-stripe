@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -53,18 +54,21 @@ public class CreateIntent extends AbstractStripe implements RunnableTask<CreateI
     @Schema(
         title = "Amount to collect", description = "Amount in the smallest currency unit (for USD, cents)"
     )
+    @PluginProperty(group = "main")
     private Property<Long> amount;
 
     @NotNull
     @Schema(
         title = "Currency code", description = "Lowercase ISO-4217 code such as `usd` or `inr`"
     )
+    @PluginProperty(group = "main")
     private Property<String> currency;
 
     @NotNull
     @Schema(
         title = "Customer ID", description = "Existing customer to associate with the PaymentIntent"
     )
+    @PluginProperty(group = "main")
     private Property<String> customer;
 
     @Override

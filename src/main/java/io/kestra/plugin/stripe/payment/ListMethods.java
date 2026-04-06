@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -52,12 +53,15 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
 
     @Schema(title = "Customer ID")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> customerId;
 
     @Schema(title = "PaymentMethod type", description = "Type filter such as `card` or `sepa_debit`")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> paymentMethodType;
 
+    @PluginProperty(group = "main")
     private Property<String> apiKey;
 
     @Override
