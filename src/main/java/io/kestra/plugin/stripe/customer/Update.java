@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -56,15 +57,19 @@ public class Update extends AbstractStripe implements RunnableTask<Update.Output
 
     @Schema(title = "Customer ID to update", required = true)
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> customerId;
 
     @Schema(title = "Customer name", description = "New full name to store on the customer")
+    @PluginProperty(group = "destination")
     private Property<String> name;
 
     @Schema(title = "Customer email address", description = "New email; useful for receipts and lookup")
+    @PluginProperty(group = "advanced")
     private Property<String> email;
 
     @Schema(title = "Customer metadata", description = "Key-value pairs converted to strings before update")
+    @PluginProperty(group = "advanced")
     private Property<Map<String, Object>> metadata;
 
     @Override

@@ -4,6 +4,7 @@ import io.kestra.core.models.property.Property;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import io.kestra.core.models.annotations.PluginProperty;
 
 /**
  * Common interface for Stripe plugin tasks using Stripe Java SDK.
@@ -17,5 +18,6 @@ public interface StripeInterface {
         description = "Secret key for authenticating with Stripe. Starts with 'sk_' for live/test keys."
     )
     @NotNull
+    @PluginProperty(group = "main")
     Property<String> getApiKey();
 }

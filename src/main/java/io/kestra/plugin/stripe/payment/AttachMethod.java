@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -52,10 +53,12 @@ public class AttachMethod extends AbstractStripe implements RunnableTask<AttachM
 
     @Schema(title = "PaymentMethod ID to attach")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> paymentMethodId;
 
     @Schema(title = "Customer ID to attach to")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> customerId;
 
     @Override

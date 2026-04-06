@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -49,6 +50,7 @@ public class DetachMethod extends AbstractStripe implements RunnableTask<DetachM
 
     @NotNull
     @Schema(title = "PaymentMethod ID to detach")
+    @PluginProperty(group = "main")
     private Property<String> paymentMethodId;
 
     @Override

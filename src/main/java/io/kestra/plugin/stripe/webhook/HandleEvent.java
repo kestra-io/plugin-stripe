@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -58,14 +59,17 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
 
     @Schema(title = "Webhook payload body", description = "Raw JSON request body from Stripe; must be unmodified for signature verification")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> payload;
 
     @Schema(title = "Stripe-Signature header value", description = "Exact `Stripe-Signature` header from the incoming request")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> signatureHeader;
 
     @Schema(title = "Webhook endpoint secret", description = "Signing secret configured on the Stripe webhook endpoint; required for signature validation")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> endpointSecret;
 
     @Override

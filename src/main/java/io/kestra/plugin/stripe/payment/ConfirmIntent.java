@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -47,12 +48,15 @@ public class ConfirmIntent extends AbstractStripe implements RunnableTask<Confir
 
     @Schema(title = "PaymentIntent ID to confirm")
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> paymentIntentId;
 
     @Schema(title = "PaymentMethod ID", description = "Optional PaymentMethod to use when confirming")
+    @PluginProperty(group = "advanced")
     private Property<String> paymentMethod;
 
     @Schema(title = "Return URL", description = "Optional redirect URL for SCA/redirect flows")
+    @PluginProperty(group = "connection")
     private Property<String> returnUrl;
 
     @Override

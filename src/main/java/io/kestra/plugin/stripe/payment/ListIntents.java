@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -55,9 +56,11 @@ import lombok.experimental.SuperBuilder;
 public class ListIntents extends AbstractStripe implements RunnableTask<ListIntents.Output> {
 
     @Schema(title = "Maximum PaymentIntents", description = "Optional limit; Stripe defaults apply when unset")
+    @PluginProperty(group = "processing")
     private Property<Long> limit;
 
     @Schema(title = "Customer filter", description = "Optional customer ID to filter results")
+    @PluginProperty(group = "destination")
     private Property<String> customer;
 
     @Override
