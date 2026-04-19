@@ -7,8 +7,9 @@
 
 ## Why
 
-- This plugin integrates Kestra with Stripe Balance.
-- It provides tasks that fetch Stripe balances and payouts.
+- What user problem does this solve? Teams need to interact with Stripe customers, payments, balances, and webhooks from orchestrated workflows instead of relying on manual console work, ad hoc scripts, or disconnected schedulers.
+- Why would a team adopt this plugin in a workflow? It keeps Stripe steps in the same Kestra flow as upstream preparation, approvals, retries, notifications, and downstream systems.
+- What operational/business outcome does it enable? It reduces manual handoffs and fragmented tooling while improving reliability, traceability, and delivery speed for processes that depend on Stripe.
 
 ## How
 
