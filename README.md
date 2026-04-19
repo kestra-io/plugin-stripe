@@ -1,15 +1,22 @@
-# 🧾 Stripe Plugin for Kestra
+<p align="center">
+  <a href="https://www.kestra.io">
+    <img src="https://kestra.io/banner.png"  alt="Kestra workflow orchestrator" />
+  </a>
+</p>
 
-The Stripe plugin allows you to interact with the [Stripe API](https://stripe.com/docs/api) directly from [Kestra](https://kestra.io).
-It provides tasks for managing **customers, payments, payment methods, webhooks, and balances**.
+<h1 align="center" style="border-bottom: none">
+    Event-Driven Declarative Orchestrator
+</h1>
 
----
+<div align="center">
+ <a href="https://github.com/kestra-io/kestra/releases"><img src="https://img.shields.io/github/tag-pre/kestra-io/kestra.svg?color=blueviolet" alt="Last Version" /></a>
+  <a href="https://github.com/kestra-io/kestra/blob/develop/LICENSE"><img src="https://img.shields.io/github/license/kestra-io/kestra?color=blueviolet" alt="License" /></a>
+  <a href="https://github.com/kestra-io/kestra/stargazers"><img src="https://img.shields.io/github/stars/kestra-io/kestra?color=blueviolet&logo=github" alt="Github star" /></a> <br>
+<a href="https://kestra.io"><img src="https://img.shields.io/badge/Website-kestra.io-192A4E?color=blueviolet" alt="Kestra infinitely scalable orchestration and scheduling platform"></a>
+<a href="https://kestra.io/slack"><img src="https://img.shields.io/badge/Slack-Join%20Community-blueviolet?logo=slack" alt="Slack"></a>
+</div>
 
-## 🔐 Authentication
-
-
-All tasks require a **Stripe API Key** (`sk_test_...` or `sk_live_...`).
-You should store the key as a [Kestra Secret](https://kestra.io/docs/concepts/secrets) and reference it inside your task.
+<br />
 
 <p align="center">
   <a href="https://twitter.com/kestra_io" style="margin: 0 10px;">
@@ -20,145 +27,37 @@ You should store the key as a [Kestra Secret](https://kestra.io/docs/concepts/se
         <img src="https://kestra.io/youtube.svg" alt="youtube" width="35" height="25" /></a>
 </p>
 
-```yaml
-apiKey: "{{ secret('STRIPE_API_KEY') }}"
-```
+<br />
+<p align="center">
+    <a href="https://go.kestra.io/video/product-overview" target="_blank">
+        <img src="https://kestra.io/startvideo.png" alt="Get started in 4 minutes with Kestra" width="640px" />
+    </a>
+</p>
+<p align="center" style="color:grey;"><i>Get started in 4 minutes with Kestra.</i></p>
 
-- **Test keys** (`sk_test_...`) are used for sandbox testing.
-- **Live keys** (`sk_live_...`) are used in production.
-⚠️ Never hardcode keys directly into your YAML.
+# 🧾 Stripe Plugin for Kestra
 
----
+## Why
 
-## ⚙️ Common Configuration
+- What user problem does this solve? Teams need to interact with Stripe customers, payments, balances, and webhooks from orchestrated workflows instead of relying on manual console work, ad hoc scripts, or disconnected schedulers.
+- Why would a team adopt this plugin in a workflow? It keeps Stripe steps in the same Kestra flow as upstream preparation, approvals, retries, notifications, and downstream systems.
+- What operational/business outcome does it enable? It reduces manual handoffs and fragmented tooling while improving reliability, traceability, and delivery speed for processes that depend on Stripe.
 
-All Stripe tasks inherit these base properties:
+## What
 
-| Property   | Type    | Required | Description                                                                 |
-|------------|---------|----------|-----------------------------------------------------------------------------|
-| `apiKey`   | string  | ✅        | Your Stripe API key.                                                        |
-| `url`      | string  | ❌        | Base URL for Stripe API (defaults to `https://api.stripe.com`).             |
-| `options`  | object  | ❌        | Optional HTTP configuration (timeouts, retries, proxies).                   |
+- Provides plugin components under `io.kestra.plugin.stripe`.
+- Includes classes such as `ConfirmIntent`, `CreateMethod`, `ListIntents`, `DetachMethod`.
 
----
+## Documentation
+* Full documentation can be found under: [kestra.io/docs](https://kestra.io/docs)
+* Documentation for developing a plugin is included in the [Plugin Developer Guide](https://kestra.io/docs/plugin-developer-guide/)
 
-## 📂 Available Tasks
 
-### 1. Customers
+## License
+Apache 2.0 © [Kestra Technologies](https://kestra.io)
 
-- **CreateCustomer** → Create a new customer
-- **UpdateCustomer** → Modify fields of an existing customer
-- **GetCustomer** → Retrieve a customer by ID
-- **DeleteCustomer** → Soft delete (deactivate) a customer
-- **ListCustomers** → Paginate or filter customers
+## Stay up to date
 
-**Example: Create a Customer**
+We release new versions every month. Give the [main repository](https://github.com/kestra-io/kestra) a star to stay up to date with the latest releases and get notified about future updates.
 
-```yaml
-id: create_customer
-namespace: company.team
-
-tasks:
-  - id: create_customer
-    type: io.kestra.plugin.stripe.customer.Create
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    name: "John Doe"
-    email: "john@example.com"
-    metadata:
-      plan: "pro"
-      signup_source: "landing_page"
-```
-
----
-
-### 2. Payments
-
-- **CreatePaymentIntent** → Initiate a payment with amount, currency, customer
-- **ConfirmPaymentIntent** → Confirm a pending payment intent
-- **RefundPayment** → Issue a refund (full or partial)
-- **ListPaymentIntents** → Retrieve recent or filtered payment intents
-
-**Example: Create and Confirm a PaymentIntent**
-
-```yaml
-tasks:
-  - id: create_payment
-    type: io.kestra.plugin.stripe.payment.CreateIntent
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    amount: 5000          # amount in cents
-    currency: "usd"
-    customer: "cus_12345"
-
-  - id: confirm_payment
-    type: io.kestra.plugin.stripe.payment.ConfirmIntent
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    paymentIntentId: "{{ outputs.create_payment.paymentIntent.id }}"
-```
-
----
-
-### 3. Payment Methods
-
-- **CreatePaymentMethod** → Create a payment method (e.g., card, SEPA)
-- **AttachPaymentMethod** → Attach payment method to a customer
-- **DetachPaymentMethod** → Detach a payment method from a customer
-- **ListPaymentMethods** → List all payment methods for a customer
-
-**Example: Attach a Card to a Customer**
-
-```yaml
-tasks:
-  - id: create_payment_method
-    type: io.kestra.plugin.stripe.payment.CreateMethod
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    type: "card"
-    card:
-      number: "4242424242424242"
-      exp_month: 12
-      exp_year: 2030
-      cvc: "123"
-
-  - id: attach_payment_method
-    type: io.kestra.plugin.stripe.payment.AttachMethod
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    customerId: "cus_12345"
-    paymentMethodId: "{{ outputs.create_payment_method.paymentMethod.id }}"
-```
-
----
-
-### 4. Balance
-
-- **RetrieveBalance** → Get the account’s available and pending balance.
-
-```yaml
-tasks:
-  - id: get_balance
-    type: io.kestra.plugin.stripe.balance.Retrieve
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-```
-
----
-
-### 5. Webhooks
-
-- **HandleWebhookEvent** → Receive and validate webhook events, trigger workflows.
-
-```yaml
-tasks:
-  - id: webhook_handler
-    type: io.kestra.plugin.stripe.webhook.HandleEvent
-    apiKey: "{{ secret('STRIPE_API_KEY') }}"
-    payload: "{{ trigger.body }}"
-    signatureHeader: "{{ trigger.headers['Stripe-Signature'] }}"
-    endpointSecret: "{{ secret('STRIPE_WEBHOOK_SECRET') }}"
-```
-
----
-
-## ✅ Best Practices
-
-1. **Use Test Keys First**: Always test flows in Stripe’s test mode before production.
-2. **Store Keys in Secrets**: Never hardcode your API keys.
-3. **Chain Tasks**: You can chain tasks like creating a customer → creating payment intent → confirming payment.
-4. **Error Handling**: Stripe errors are returned with full details in the `rawResponse` output.
+![Star the repo](https://kestra.io/star.gif)
