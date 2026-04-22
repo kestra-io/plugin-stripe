@@ -1,5 +1,6 @@
 package io.kestra.plugin.stripe;
 
+import io.kestra.core.models.annotations.PluginProperty;
 import com.stripe.StripeClient;
 
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
@@ -24,6 +25,7 @@ public abstract class AbstractStripe extends Task implements StripeInterface {
      * Stripe API key (secret).
      */
     @NotNull
+    @PluginProperty(secret = true)
     protected Property<String> apiKey;
 
     /**

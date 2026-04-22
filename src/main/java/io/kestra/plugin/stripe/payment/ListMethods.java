@@ -61,7 +61,7 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
     @PluginProperty(group = "main")
     private Property<String> paymentMethodType;
 
-    @PluginProperty(group = "main")
+    @PluginProperty(secret = true, group = "main")
     private Property<String> apiKey;
 
     @Override
