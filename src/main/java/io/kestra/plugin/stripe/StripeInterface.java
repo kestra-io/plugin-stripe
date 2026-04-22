@@ -18,6 +18,6 @@ public interface StripeInterface {
         description = "Secret key for authenticating with Stripe. Starts with 'sk_' for live/test keys."
     )
     @NotNull
-    @PluginProperty(group = "main")
+    @PluginProperty(secret = true, group = "main")
     Property<String> getApiKey();
 }
