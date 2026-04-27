@@ -43,8 +43,8 @@ dependencies {
     implementation enforcedPlatform("io.kestra:platform:$kestraVersion")
 
     // lombok
-    annotationProcessor "org.projectlombok:lombok:1.18.44"
-    compileOnly "org.projectlombok:lombok:1.18.44"
+    annotationProcessor "org.projectlombok:lombok:1.18.46"
+    compileOnly "org.projectlombok:lombok:1.18.46"
 
     // kestra
     annotationProcessor group: "io.kestra", name: "processor", version: kestraVersion
