@@ -52,7 +52,7 @@ dependencies {
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
 
     // Stripe SDK
-    implementation 'com.stripe:stripe-java:32.0.0'
+    implementation 'com.stripe:stripe-java:32.1.0'
 }
 
 
