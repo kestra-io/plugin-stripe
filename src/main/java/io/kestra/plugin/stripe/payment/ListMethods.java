@@ -5,7 +5,7 @@ import java.util.List;
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
-import com.stripe.model.PaymentMethodCollection;
+import com.stripe.model.StripeCollection;
 import com.stripe.param.PaymentMethodListParams;
 
 import io.kestra.core.models.annotations.Example;
@@ -82,7 +82,7 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
                 .setType(PaymentMethodListParams.Type.valueOf(pmType.toUpperCase()))
                 .build();
 
-            PaymentMethodCollection collection = stripeClient.paymentMethods().list(params);
+            StripeCollection<PaymentMethod> collection = stripeClient.paymentMethods().list(params);
 
             List<String> pmIds = collection.getData().stream()
                 .map(PaymentMethod::getId)
