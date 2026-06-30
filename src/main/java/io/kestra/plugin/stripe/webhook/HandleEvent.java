@@ -70,6 +70,7 @@ public class HandleEvent extends AbstractStripe implements RunnableTask<HandleEv
     @Schema(title = "Webhook endpoint secret", description = "Signing secret configured on the Stripe webhook endpoint; required for signature validation")
     @NotNull
     @PluginProperty(group = "main", secret = true)
+    @ToString.Exclude
     private Property<String> endpointSecret;
 
     @Override
