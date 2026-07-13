@@ -2,10 +2,9 @@ package io.kestra.plugin.stripe.payment;
 
 import java.util.List;
 
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
-import com.stripe.model.PaymentMethodCollection;
+import com.stripe.model.StripeCollection;
 import com.stripe.param.PaymentMethodListParams;
 
 import io.kestra.core.models.annotations.Example;
@@ -61,16 +60,8 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
     @PluginProperty(group = "main")
     private Property<String> paymentMethodType;
 
-    @PluginProperty(secret = true, group = "main")
-    private Property<String> apiKey;
-
     @Override
     public Output run(RunContext runContext) throws Exception {
-        // Render API key
-        String key = runContext.render(this.apiKey).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("Stripe API key is required"));
-        Stripe.apiKey = key;
-
         // Resolve properties
         String cusId = runContext.render(this.customerId).as(String.class).orElseThrow();
         String pmType = runContext.render(this.paymentMethodType).as(String.class).orElseThrow();
@@ -81,7 +72,8 @@ public class ListMethods extends AbstractStripe implements RunnableTask<ListMeth
                 .setType(PaymentMethodListParams.Type.valueOf(pmType.toUpperCase()))
                 .build();
 
-            PaymentMethodCollection collection = PaymentMethod.list(params);
+            // Use the per-request client from AbstractStripe (thread-safe, no global state mutation)
+            StripeCollection<PaymentMethod> collection = client(runContext).paymentMethods().list(params);
 
             List<String> pmIds = collection.getData().stream()
                 .map(PaymentMethod::getId)

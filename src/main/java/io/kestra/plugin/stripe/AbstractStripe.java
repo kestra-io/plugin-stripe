@@ -7,6 +7,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 
+import io.kestra.core.models.annotations.PluginProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -24,6 +25,8 @@ public abstract class AbstractStripe extends Task implements StripeInterface {
      * Stripe API key (secret).
      */
     @NotNull
+    @PluginProperty(secret = true, group = "main")
+    @ToString.Exclude
     protected Property<String> apiKey;
 
     /**
