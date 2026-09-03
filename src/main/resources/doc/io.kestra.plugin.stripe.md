@@ -4,7 +4,7 @@ Manage customers, payments, and webhooks in Stripe from Kestra flows.
 
 ## Authentication
 
-Set `apiKey` to your Stripe secret key (starts with `sk_`). Store it in a [secret](https://kestra.io/docs/concepts/secret) and apply it globally with [plugin defaults](https://kestra.io/docs/workflow-components/plugin-defaults).
+Set `apiKey` to your Stripe secret key (starts with `sk_`). Store it in a [secret](https://kestra.io/docs/concepts/secret) and set it on each task.
 
 ## Tasks
 
