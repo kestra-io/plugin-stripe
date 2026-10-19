@@ -42,7 +42,7 @@ import io.kestra.core.models.annotations.PluginProperty;
                   - id: create_payment_method
                     type: io.kestra.plugin.stripe.payment.CreateMethod
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
-                    type: "card"
+                    paymentMethodType: "card"
                     cardNumber: "{{ secret('CREDIT_CARD_NUMBER') }}"
                     expMonth: 12
                     expYear: 2030

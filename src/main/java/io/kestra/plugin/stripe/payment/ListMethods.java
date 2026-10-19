@@ -43,7 +43,7 @@ import io.kestra.core.models.annotations.PluginProperty;
                     type: io.kestra.plugin.stripe.payment.ListMethods
                     apiKey: "{{ secret('STRIPE_API_KEY') }}"
                     customerId: cus_123
-                    type: card
+                    paymentMethodType: card
                 """
         )
     }
