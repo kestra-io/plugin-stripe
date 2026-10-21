@@ -17,7 +17,6 @@ import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.stripe.AbstractStripe;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -51,8 +50,7 @@ import io.kestra.core.models.annotations.PluginProperty;
 )
 public class List extends AbstractStripe implements RunnableTask<List.Output> {
 
-    @Schema(title = "Maximum customers to return", description = "Defaults to 10; Stripe caps apply")
-    @Min(1)
+    @Schema(title = "Maximum customers to return", description = "Defaults to 10; must be at least 1; Stripe caps apply")
     @Builder.Default
     @PluginProperty(group = "processing")
     private Property<Integer> limit = Property.ofValue(10);
@@ -65,6 +63,10 @@ public class List extends AbstractStripe implements RunnableTask<List.Output> {
     public Output run(RunContext runContext) throws Exception {
         Integer rLimit = runContext.render(this.limit).as(Integer.class).orElse(10);
         String rEmail = runContext.render(this.email).as(String.class).orElse(null);
+
+        if (rLimit < 1) {
+            throw new IllegalArgumentException("The 'limit' property must be at least 1, but was: " + rLimit);
+        }
 
         CustomerListParams.Builder paramsBuilder = CustomerListParams.builder()
             .setLimit(Long.valueOf(rLimit));
