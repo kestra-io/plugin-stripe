@@ -52,10 +52,9 @@ import io.kestra.core.models.annotations.PluginProperty;
 public class List extends AbstractStripe implements RunnableTask<List.Output> {
 
     @Schema(title = "Maximum customers to return", description = "Defaults to 10; Stripe caps apply")
-    @Min(1)
     @Builder.Default
     @PluginProperty(group = "processing")
-    private Property<Integer> limit = Property.ofValue(10);
+    private Property<@Min(1) Integer> limit = Property.ofValue(10);
 
     @Schema(title = "Email filter", description = "If set, returns customers whose email matches the value")
     @PluginProperty(group = "advanced")
